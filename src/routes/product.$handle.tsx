@@ -4,7 +4,7 @@ import { Loader2, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
-import { fetchProductByHandle, formatMoney } from "@/lib/shopify";
+import { fetchProductByHandle, formatMoney, type ShopifyProduct } from "@/lib/shopify";
 import { useCartStore } from "@/stores/cartStore";
 
 export const Route = createFileRoute("/product/$handle")({
