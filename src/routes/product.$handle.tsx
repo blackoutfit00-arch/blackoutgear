@@ -31,7 +31,7 @@ export const Route = createFileRoute("/product/$handle")({
 });
 
 function ProductPage() {
-  const { product } = Route.useLoaderData();
+  const { product } = Route.useLoaderData() as { product: ShopifyProduct };
   const node = product.node;
   const variants = node.variants.edges.map((e) => e.node);
   const [variantId, setVariantId] = useState(
