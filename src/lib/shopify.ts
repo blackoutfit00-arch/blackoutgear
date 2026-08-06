@@ -106,5 +106,6 @@ export async function fetchProductByHandle(handle: string): Promise<ShopifyProdu
 
 export function formatMoney(amount: string | number, currencyCode: string) {
   const value = typeof amount === "string" ? parseFloat(amount) : amount;
-  return `${value.toFixed(3).replace(/0$/, "")} ${currencyCode}`;
+  const decimals = currencyCode === "BHD" || currencyCode === "KWD" || currencyCode === "OMR" ? 3 : 2;
+  return `${value.toFixed(decimals)} ${currencyCode}`;
 }
