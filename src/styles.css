@@ -100,10 +100,11 @@
   --sidebar-ring: oklch(0.58 0.22 27);
 }
 
-@theme inline {
-  --font-display: var(--font-display);
-  --font-sans: var(--font-body);
+@theme {
+  --font-display: "Bebas Neue", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
 }
+
 
 @layer base {
   * {
