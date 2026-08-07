@@ -51,9 +51,9 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
         </Link>
 
         {hasOptions ? (
-          <Button asChild variant="secondary" className="label-caps">
+          <Button asChild variant="secondary" className="label-caps transition-colors hover:bg-primary hover:text-primary-foreground">
             <Link to="/product/$handle" params={{ handle: node.handle }}>
-              Choose options
+              View product
             </Link>
           </Button>
         ) : (
