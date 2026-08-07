@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
 import { Loader2, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -30,19 +30,63 @@ export const Route = createFileRoute("/product/$handle")({
   component: ProductPage,
 });
 
+const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "2XL", "XXL", "3XL", "XXXL", "4XL", "XXXXL", "5XL"];
+
+function sizeRank(value: string) {
+  const upper = value.trim().toUpperCase();
+  const index = SIZE_ORDER.indexOf(upper);
+  if (index !== -1) return index;
+  const num = parseFloat(value);
+  if (!isNaN(num)) return 100 + num;
+  return 1000;
+}
+
+function sortValues(values: string[], optionName: string) {
+  const name = optionName.toLowerCase();
+  if (name.includes("size") || name.includes("مقاس") || name.includes("size")) {
+    return [...values].sort((a, b) => sizeRank(a) - sizeRank(b));
+  }
+  return values;
+}
+
 function ProductPage() {
   const { product } = Route.useLoaderData() as { product: ShopifyProduct };
   const node = product.node;
   const variants = node.variants.edges.map((e) => e.node);
-  const [variantId, setVariantId] = useState(
-    (variants.find((v) => v.availableForSale) ?? variants[0])?.id,
-  );
+  const options = node.options ?? [];
+
+  const firstAvailable = variants.find((v) => v.availableForSale) ?? variants[0];
+  const initialSelections = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const opt of firstAvailable?.selectedOptions ?? []) {
+      map[opt.name] = opt.value;
+    }
+    return map;
+  }, [firstAvailable]);
+
+  const [selections, setSelections] = useState<Record<string, string>>(initialSelections);
   const [imageIndex, setImageIndex] = useState(0);
   const addItem = useCartStore((s) => s.addItem);
   const isLoading = useCartStore((s) => s.isLoading);
 
   const images = node.images.edges.map((e) => e.node);
-  const variant = variants.find((v) => v.id === variantId) ?? variants[0];
+
+  const variant = useMemo(() => {
+    return (
+      variants.find((v) => v.selectedOptions.every((opt) => selections[opt.name] === opt.value)) ??
+      variants[0]
+    );
+  }, [variants, selections]);
+
+  const handleSelect = (optionName: string, value: string) => {
+    const next = { ...selections, [optionName]: value };
+    const matched = variants.find((v) =>
+      v.selectedOptions.every((opt) => next[opt.name] === opt.value),
+    );
+    if (matched) {
+      setSelections(next);
+    }
+  };
 
   const handleAdd = async () => {
     if (!variant) return;
@@ -93,23 +137,43 @@ function ProductPage() {
               {variant ? formatMoney(variant.price.amount, variant.price.currencyCode) : null}
             </p>
 
-            {variants.length > 1 && (
-              <div className="mt-6">
-                <p className="label-caps mb-2 text-xs text-muted-foreground">Options</p>
-                <div className="flex flex-wrap gap-2">
-                  {variants.map((v) => (
-                    <button
-                      key={v.id}
-                      onClick={() => setVariantId(v.id)}
-                      disabled={!v.availableForSale}
-                      className={`rounded border px-3 py-1.5 text-sm transition-colors disabled:opacity-40 ${
-                        v.id === variantId ? "border-primary bg-primary/10 text-foreground" : "border-border text-muted-foreground hover:border-foreground/40"
-                      }`}
-                    >
-                      {v.title}
-                    </button>
-                  ))}
-                </div>
+            {options.length > 0 && (
+              <div className="mt-6 space-y-5">
+                {options.map((option) => {
+                  const values = sortValues(option.values, option.name);
+                  return (
+                    <div key={option.name}>
+                      <p className="label-caps mb-2 text-xs text-muted-foreground">{option.name}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {values.map((value) => {
+                          const isActive = selections[option.name] === value;
+                          const isAvailable = variants.some(
+                            (v) =>
+                              v.availableForSale &&
+                              v.selectedOptions.some((opt) => opt.name === option.name && opt.value === value) &&
+                              v.selectedOptions.every((opt) =>
+                                opt.name === option.name ? true : selections[opt.name] === opt.value,
+                              ),
+                          );
+                          return (
+                            <button
+                              key={value}
+                              onClick={() => handleSelect(option.name, value)}
+                              disabled={!isAvailable}
+                              className={`rounded border px-3 py-1.5 text-sm transition-colors disabled:opacity-40 ${
+                                isActive
+                                  ? "border-primary bg-primary/10 text-foreground"
+                                  : "border-border text-muted-foreground hover:border-foreground/40"
+                              }`}
+                            >
+                              {value}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
 
