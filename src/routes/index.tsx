@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { ProductCard } from "@/components/ProductCard";
 import { fetchProducts, type ShopifyProduct } from "@/lib/shopify";
 import { STORE_NAME, STORE_TAGLINE } from "@/config/store";
@@ -109,9 +110,7 @@ function Index() {
       </main>
 
 
-      <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} {STORE_NAME}
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
