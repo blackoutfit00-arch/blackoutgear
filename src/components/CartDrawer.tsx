@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ShoppingBag, Minus, Plus, Trash2, MessageCircle, ExternalLink, Loader2 } from "lucide-react";
+import { ShoppingBag, Minus, Plus, Trash2, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useCartStore } from "@/stores/cartStore";
 import { formatMoney } from "@/lib/shopify";
@@ -17,7 +17,7 @@ export function CartDrawer() {
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
 
-  const { items, isLoading, isSyncing, updateQuantity, removeItem, getCheckoutUrl, syncCart } = useCartStore();
+  const { items, updateQuantity, removeItem, syncCart } = useCartStore();
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
   const currency = items[0]?.price.currencyCode ?? DELIVERY_CURRENCY;
@@ -27,14 +27,6 @@ export function CartDrawer() {
   useEffect(() => {
     if (isOpen) syncCart();
   }, [isOpen, syncCart]);
-
-  const handleCheckout = () => {
-    const checkoutUrl = getCheckoutUrl();
-    if (checkoutUrl) {
-      window.open(checkoutUrl, "_blank");
-      setIsOpen(false);
-    }
-  };
 
   const handleWhatsAppOrder = () => {
     if (!/^[\p{L}\s'-]{2,}$/u.test(name.trim())) {
@@ -171,23 +163,8 @@ export function CartDrawer() {
                   <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes (optional)" rows={2} />
                 </div>
 
-                <Button onClick={handleWhatsAppOrder} size="lg" className="label-caps w-full bg-accent text-accent-foreground hover:bg-accent/90">
+                <Button onClick={handleWhatsAppOrder} size="lg" className="label-caps mb-4 w-full bg-accent text-accent-foreground hover:bg-accent/90">
                   <MessageCircle className="mr-2 h-4 w-4" /> Place order & open WhatsApp
-                </Button>
-
-                <Button
-                  onClick={handleCheckout}
-                  variant="ghost"
-                  className="label-caps mb-4 w-full text-xs text-muted-foreground"
-                  disabled={isLoading || isSyncing}
-                >
-                  {isLoading || isSyncing ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <>
-                      <ExternalLink className="mr-2 h-3.5 w-3.5" /> Or pay online with Shopify
-                    </>
-                  )}
                 </Button>
               </div>
             </>
