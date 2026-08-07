@@ -1,5 +1,5 @@
 export const STORE_NAME = "Blackout Gear";
-export const STORE_TAGLINE = "Gym apparel & lifting gear — delivered in Bahrain";
+export const STORE_TAGLINE = "Sport apparel & lifting gear";
 
 // Change this to your own WhatsApp business number (international format, digits only).
 export const WHATSAPP_NUMBER = "97333751175";

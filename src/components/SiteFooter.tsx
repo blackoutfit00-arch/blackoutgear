@@ -2,7 +2,7 @@ import { STORE_NAME, WHATSAPP_NUMBER } from "@/config/store";
 
 const INSTAGRAM_HANDLE = "blackoutgear.bh";
 
-const CUSTOMER_CARE_LINKS = ["FAQs", "Returns & Replacements", "Brand Protection", "Privacy Policy"];
+const CUSTOMER_CARE_LINKS = ["FAQs", "Returns & Replacements", "Privacy Policy"];
 
 export function SiteFooter() {
   return (

@@ -75,7 +75,7 @@ function Index() {
 
       <section className="border-b border-border bg-gradient-to-b from-card to-background">
         <div className="mx-auto max-w-6xl px-4 py-16 text-center">
-          <p className="label-caps text-xs text-primary">Bahrain · WhatsApp orders</p>
+          <p className="label-caps text-xs text-primary">Bahrain</p>
           <h1 className="mt-3 text-5xl sm:text-6xl">{STORE_NAME}</h1>
           <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground sm:text-base">{STORE_TAGLINE}</p>
         </div>
