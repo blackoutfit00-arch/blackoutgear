@@ -131,3 +131,31 @@
   text-transform: uppercase;
 }
 
+.product-description > * + * {
+  margin-top: 0.85em;
+}
+
+.product-description p,
+.product-description li {
+  line-height: 1.9;
+}
+
+.product-description ul,
+.product-description ol {
+  padding-inline-start: 1.25em;
+}
+
+.product-description ul > li + li,
+.product-description ol > li + li {
+  margin-top: 0.6em;
+}
+
+.product-description h1,
+.product-description h2,
+.product-description h3,
+.product-description h4 {
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
+
