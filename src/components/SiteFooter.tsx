@@ -6,8 +6,15 @@ const CUSTOMER_CARE_LINKS = ["FAQs", "Returns & Replacements", "Privacy Policy"]
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-card">
-      <div className="mx-auto max-w-6xl px-4 py-12">
+    <footer className="relative overflow-hidden border-t border-border bg-card">
+      <img
+        src="/bg-logo.png"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-10 top-1/2 hidden h-64 w-64 -translate-y-1/2 opacity-[0.06] sm:block"
+      />
+
+      <div className="relative mx-auto max-w-6xl px-4 py-12">
         <div className="flex items-center gap-3">
           <img src="/bg-logo.png" alt={STORE_NAME} className="h-10 w-10 object-contain" />
           <p className="label-caps text-xs text-muted-foreground">Sports Online Store · Bahrain</p>
