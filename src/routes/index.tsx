@@ -56,7 +56,8 @@ function Index() {
 
   const filtered = useMemo(() => {
     if (!products) return [];
-    const cat = CATEGORIES.find((c) => c.label === active) ?? CATEGORIES[0];
+    const cat = CATEGORIES.find((c) => c.label === active);
+    if (!cat) return products;
     return products.filter((p: ShopifyProduct) => cat.match(p.node.title.toLowerCase()));
   }, [products, active]);
 
