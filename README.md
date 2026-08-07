@@ -1,12 +1,6 @@
 # Blackoutgear shop
 
-ابغى اسوي كذا في متجري في شوبيفاي
-
-This project was built with [Lovable](https://lovable.dev).
-
 **Live app**: https://blackoutgear.lovable.app
-
-## Build with Lovable
 
 Continue developing this project in the [Lovable editor](https://lovable.dev/projects/fb6644a5-026c-4df6-b19b-87deb5fcfe16).
 
