@@ -34,7 +34,7 @@ const PRODUCT_FIELDS = `
   description
   handle
   priceRange { minVariantPrice { amount currencyCode } }
-  images(first: 5) { edges { node { url altText } } }
+  images(first: 250) { edges { node { url altText } } }
   variants(first: 50) {
     edges {
       node {

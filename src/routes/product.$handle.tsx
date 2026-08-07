@@ -66,8 +66,18 @@ function ProductPage() {
 
   const [selections, setSelections] = useState<Record<string, string>>(initialSelections);
   const [imageIndex, setImageIndex] = useState(0);
+  const [zoomActive, setZoomActive] = useState(false);
+  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
   const isLoading = useCartStore((s) => s.isLoading);
+
+  const handleImageMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setZoomPos({ x: Math.min(100, Math.max(0, x)), y: Math.min(100, Math.max(0, y)) });
+  };
 
   const images = node.images.edges.map((e) => e.node);
 
@@ -111,18 +121,33 @@ function ProductPage() {
 
         <div className="grid gap-10 md:grid-cols-2">
           <div>
-            <div className="aspect-square overflow-hidden rounded-md border border-border bg-muted">
+            <div
+              className="relative aspect-square cursor-zoom-in overflow-hidden rounded-md border border-border bg-muted"
+              onMouseEnter={() => setZoomActive(true)}
+              onMouseLeave={() => setZoomActive(false)}
+              onMouseMove={handleImageMouseMove}
+              onClick={() => setLightboxOpen(true)}
+            >
               {images[imageIndex] ? (
-                <img src={images[imageIndex].url} alt={images[imageIndex].altText ?? node.title} className="h-full w-full object-cover" />
+                <img
+                  src={images[imageIndex].url}
+                  alt={images[imageIndex].altText ?? node.title}
+                  className="h-full w-full object-cover transition-transform duration-150 ease-out"
+                  style={
+                    zoomActive
+                      ? { transform: "scale(2)", transformOrigin: `${zoomPos.x}% ${zoomPos.y}%` }
+                      : undefined
+                  }
+                />
               ) : null}
             </div>
             {images.length > 1 && (
-              <div className="mt-3 flex gap-2">
+              <div className="mt-3 flex flex-wrap gap-2">
                 {images.map((img, i) => (
                   <button
                     key={img.url}
                     onClick={() => setImageIndex(i)}
-                    className={`h-16 w-16 overflow-hidden rounded border ${i === imageIndex ? "border-primary" : "border-border"}`}
+                    className={`h-16 w-16 shrink-0 overflow-hidden rounded border ${i === imageIndex ? "border-primary" : "border-border"}`}
                   >
                     <img src={img.url} alt="" className="h-full w-full object-cover" />
                   </button>
@@ -130,6 +155,27 @@ function ProductPage() {
               </div>
             )}
           </div>
+
+          {lightboxOpen && images[imageIndex] && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+              onClick={() => setLightboxOpen(false)}
+            >
+              <button
+                onClick={() => setLightboxOpen(false)}
+                className="absolute right-4 top-4 text-3xl leading-none text-white/80 hover:text-white"
+                aria-label="Close"
+              >
+                ×
+              </button>
+              <img
+                src={images[imageIndex].url}
+                alt={images[imageIndex].altText ?? node.title}
+                className="max-h-full max-w-full object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          )}
 
           <div>
             <h1 className="text-4xl">{node.title}</h1>
@@ -182,7 +228,13 @@ function ProductPage() {
             </Button>
 
             {node.description && (
-              <p className="mt-8 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{node.description}</p>
+              <p
+                dir="rtl"
+                className="mt-8 whitespace-pre-line text-right text-sm leading-loose text-muted-foreground [&>br]:block [&>br]:content-[''] [&>br]:mt-2"
+                style={{ lineHeight: 2 }}
+              >
+                {node.description}
+              </p>
             )}
           </div>
         </div>
