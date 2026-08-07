@@ -1,26 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ProductCard } from "@/components/ProductCard";
 import { fetchProducts, type ShopifyProduct } from "@/lib/shopify";
 import { STORE_NAME, STORE_TAGLINE } from "@/config/store";
+import { CATEGORIES } from "@/config/categories";
 import { cn } from "@/lib/utils";
 
-const CATEGORIES: Array<{ label: string; match: (title: string) => boolean }> = [
-  { label: "All", match: () => true },
-  { label: "Pants", match: (t) => /pant|sweatpant|sportssuit|jogger/.test(t) },
-  { label: "Oversize", match: (t) => /oversize|oversized/.test(t) },
-  { label: "YoungLA", match: (t) => /youngla|yla/.test(t) },
-  { label: "Gymshark", match: (t) => /gymshark|onyx/.test(t) },
-  { label: "Compression", match: (t) => /compression/.test(t) },
-  { label: "Gym Accessories", match: (t) => /strap|belt|glove|sleeve|shaker|accessor/.test(t) },
-];
-
+type IndexSearch = { category?: string | undefined; q?: string | undefined };
 
 export const Route = createFileRoute("/")({
+  validateSearch: (search: Record<string, unknown>): IndexSearch => ({
+    category: typeof search["category"] === "string" ? (search["category"] as string) : undefined,
+    q: typeof search["q"] === "string" ? (search["q"] as string) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Blackout Gear — Gym Apparel & Lifting Gear in Bahrain" },
@@ -42,11 +38,18 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const { category, q } = Route.useSearch();
   const { data: products, isLoading, isError } = useQuery({
     queryKey: ["products"],
     queryFn: () => fetchProducts(50),
   });
-  const [active, setActive] = useState("All");
+  const [active, setActive] = useState(category && CATEGORIES.some((c) => c.label === category) ? category : "All");
+
+  useEffect(() => {
+    if (category && CATEGORIES.some((c) => c.label === category)) {
+      setActive(category);
+    }
+  }, [category]);
 
   const available = useMemo(() => {
     if (!products) return CATEGORIES.slice(0, 1);
@@ -58,9 +61,13 @@ function Index() {
   const filtered = useMemo(() => {
     if (!products) return [];
     const cat = CATEGORIES.find((c) => c.label === active);
-    if (!cat) return products;
-    return products.filter((p: ShopifyProduct) => cat.match(p.node.title.toLowerCase()));
-  }, [products, active]);
+    let result = cat ? products.filter((p: ShopifyProduct) => cat.match(p.node.title.toLowerCase())) : products;
+    if (q && q.trim()) {
+      const needle = q.trim().toLowerCase();
+      result = result.filter((p: ShopifyProduct) => p.node.title.toLowerCase().includes(needle));
+    }
+    return result;
+  }, [products, active, q]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -91,6 +98,12 @@ function Index() {
             </button>
           ))}
         </nav>
+
+        {q && q.trim() && (
+          <p className="mb-4 text-sm text-muted-foreground">
+            Results for <span className="font-semibold text-foreground">"{q.trim()}"</span>
+          </p>
+        )}
 
         {isLoading ? (
           <div className="flex justify-center py-20">
