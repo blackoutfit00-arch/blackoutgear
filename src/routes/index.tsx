@@ -1,10 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ProductCard } from "@/components/ProductCard";
-import { fetchProducts } from "@/lib/shopify";
+import { fetchProducts, type ShopifyProduct } from "@/lib/shopify";
 import { STORE_NAME, STORE_TAGLINE } from "@/config/store";
+import { cn } from "@/lib/utils";
+
+const CATEGORIES: Array<{ label: string; match: (title: string) => boolean }> = [
+  { label: "All", match: () => true },
+  { label: "Pants", match: (t) => /pant|sweatpant|sportssuit|jogger/.test(t) },
+  { label: "Oversize", match: (t) => /oversize|oversized/.test(t) },
+  { label: "YoungLA", match: (t) => /youngla|yla/.test(t) },
+  { label: "Gymshark", match: (t) => /gymshark|onyx/.test(t) },
+  { label: "Compression", match: (t) => /compression/.test(t) },
+  { label: "Gym Accessories", match: (t) => /strap|belt|glove|sleeve|shaker|accessor/.test(t) },
+];
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
