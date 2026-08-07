@@ -59,6 +59,18 @@ export const STOREFRONT_QUERY = `
   }
 `;
 
+// Products are ordered via the "Homepage" collection in Shopify (Collections → Homepage),
+// which merchants can drag-and-drop reorder in the admin (manual sort order).
+export const HOMEPAGE_COLLECTION_QUERY = `
+  query GetHomepageCollection($first: Int!) {
+    collectionByHandle(handle: "homepage") {
+      products(first: $first) {
+        edges { node { ${PRODUCT_FIELDS} } }
+      }
+    }
+  }
+`;
+
 export const PRODUCT_BY_HANDLE_QUERY = `
   query GetProduct($handle: String!) {
     productByHandle(handle: $handle) { ${PRODUCT_FIELDS} }
@@ -96,8 +108,14 @@ export async function storefrontApiRequest(query: string, variables: Record<stri
 }
 
 export async function fetchProducts(first = 50): Promise<ShopifyProduct[]> {
-  const data = await storefrontApiRequest(STOREFRONT_QUERY, { first });
-  return data?.data?.products?.edges ?? [];
+  const data = await storefrontApiRequest(HOMEPAGE_COLLECTION_QUERY, { first });
+  const collectionProducts = data?.data?.collectionByHandle?.products?.edges;
+  if (collectionProducts && collectionProducts.length > 0) {
+    return collectionProducts;
+  }
+  // Fallback in case the "Homepage" collection is missing or empty.
+  const fallback = await storefrontApiRequest(STOREFRONT_QUERY, { first });
+  return fallback?.data?.products?.edges ?? [];
 }
 
 export async function fetchProductByHandle(handle: string): Promise<ShopifyProduct | null> {
