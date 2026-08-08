@@ -51,7 +51,10 @@ export function CartDrawer() {
       toast.error("Please enter your delivery address", { position: "top-center" });
       return;
     }
+    setIsConfirmOpen(true);
+  };
 
+  const sendWhatsAppOrder = () => {
     const lines = items.map((i) => {
       const opts = i.selectedOptions.map((o) => `${o.name}: ${o.value}`).join(" · ");
       const url = `${window.location.origin}/product/${i.product.node.handle}`;
@@ -75,8 +78,10 @@ export function CartDrawer() {
       .join("\n");
 
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
+    setIsConfirmOpen(false);
     setIsOpen(false);
   };
+
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
