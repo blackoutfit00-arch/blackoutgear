@@ -1,4 +1,5 @@
 import { STORE_NAME, WHATSAPP_NUMBER } from "@/config/store";
+import footerLogo from "@/assets/bg-logo-metallic.png.asset.json";
 
 const INSTAGRAM_HANDLE = "blackoutgear.bh";
 
