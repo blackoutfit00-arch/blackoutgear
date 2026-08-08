@@ -8,7 +8,7 @@ import { ShoppingBag, Minus, Plus, Trash2, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useCartStore } from "@/stores/cartStore";
 import { formatMoney } from "@/lib/shopify";
-import { DELIVERY_CURRENCY, DELIVERY_FEE, STORE_NAME, WHATSAPP_NUMBER } from "@/config/store";
+import { DELIVERY_CURRENCY, STORE_NAME, WHATSAPP_NUMBER } from "@/config/store";
 
 export function CartDrawer() {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,7 +22,7 @@ export function CartDrawer() {
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
   const currency = items[0]?.price.currencyCode ?? DELIVERY_CURRENCY;
   const subtotal = items.reduce((sum, i) => sum + parseFloat(i.price.amount) * i.quantity, 0);
-  const total = subtotal + (items.length > 0 ? DELIVERY_FEE : 0);
+  const total = subtotal;
 
   useEffect(() => {
     if (isOpen) syncCart();
@@ -57,7 +57,6 @@ export function CartDrawer() {
       "",
       ...lines,
       "",
-      `🚚 Delivery: ${formatMoney(DELIVERY_FEE, currency)}`,
       `🧾 Order Total: ${formatMoney(total, currency)}`,
       notes.trim() ? `\n📝 Notes: ${notes.trim()}` : "",
     ]
@@ -137,10 +136,6 @@ export function CartDrawer() {
               </div>
 
               <div className="flex-shrink-0 space-y-3 border-t border-border px-4 pt-4">
-                <div className="flex justify-between text-sm text-muted-foreground">
-                  <span className="label-caps">Delivery</span>
-                  <span>{formatMoney(DELIVERY_FEE, currency)}</span>
-                </div>
                 <div className="flex items-center justify-between">
                   <span className="label-caps text-sm">Total</span>
                   <span className="text-2xl font-bold">{formatMoney(total, currency)}</span>
