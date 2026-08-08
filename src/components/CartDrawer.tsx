@@ -57,6 +57,7 @@ export function CartDrawer() {
       "",
       ...lines,
       "",
+      `🚚 Delivery: Free`,
       `🧾 Order Total: ${formatMoney(total, currency)}`,
       notes.trim() ? `\n📝 Notes: ${notes.trim()}` : "",
     ]
@@ -136,6 +137,10 @@ export function CartDrawer() {
               </div>
 
               <div className="flex-shrink-0 space-y-3 border-t border-border px-4 pt-4">
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span className="label-caps">Delivery</span>
+                  <span className="font-semibold text-foreground">Free</span>
+                </div>
                 <div className="flex items-center justify-between">
                   <span className="label-caps text-sm">Total</span>
                   <span className="text-2xl font-bold">{formatMoney(total, currency)}</span>
