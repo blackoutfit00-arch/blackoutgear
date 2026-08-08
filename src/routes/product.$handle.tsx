@@ -85,6 +85,15 @@ function ProductPage() {
     );
     if (matched) {
       setSelections(next);
+
+      // If this variant has its own image in Shopify (e.g. assigned per color),
+      // jump the gallery to it — same behavior as Shopify's native variant swatches.
+      if (matched.image?.url) {
+        const matchedIndex = images.findIndex((img) => img.url === matched.image!.url);
+        if (matchedIndex !== -1) {
+          setImageIndex(matchedIndex);
+        }
+      }
     }
   };
 
