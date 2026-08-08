@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -12,10 +20,12 @@ import { DELIVERY_CURRENCY, STORE_NAME, WHATSAPP_NUMBER } from "@/config/store";
 
 export function CartDrawer() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
+
 
   const { items, updateQuantity, removeItem, syncCart } = useCartStore();
 
@@ -41,7 +51,10 @@ export function CartDrawer() {
       toast.error("Please enter your delivery address", { position: "top-center" });
       return;
     }
+    setIsConfirmOpen(true);
+  };
 
+  const sendWhatsAppOrder = () => {
     const lines = items.map((i) => {
       const opts = i.selectedOptions.map((o) => `${o.name}: ${o.value}`).join(" · ");
       const url = `${window.location.origin}/product/${i.product.node.handle}`;
@@ -65,8 +78,10 @@ export function CartDrawer() {
       .join("\n");
 
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
+    setIsConfirmOpen(false);
     setIsOpen(false);
   };
+
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -170,7 +185,66 @@ export function CartDrawer() {
             </>
           )}
         </div>
+
+        <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+          <DialogContent className="max-w-md border-border bg-card">
+            <DialogHeader>
+              <DialogTitle className="label-caps text-xl">تأكيد الطلب</DialogTitle>
+              <DialogDescription>راجع تفاصيل طلبك قبل الإرسال على واتساب</DialogDescription>
+            </DialogHeader>
+
+            <div className="max-h-[45vh] space-y-3 overflow-y-auto text-sm">
+              <div className="space-y-2">
+                {items.map((item) => (
+                  <div key={item.variantId} className="flex justify-between gap-3">
+                    <span className="min-w-0">
+                      <span className="font-semibold">{item.product.node.title}</span>
+                      {item.selectedOptions.length > 0 && (
+                        <span className="text-muted-foreground"> · {item.selectedOptions.map((o) => o.value).join(" · ")}</span>
+                      )}
+                      <span className="text-muted-foreground"> × {item.quantity}</span>
+                    </span>
+                    <span className="whitespace-nowrap font-semibold">
+                      {formatMoney(parseFloat(item.price.amount) * item.quantity, item.price.currencyCode)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-1 border-t border-border pt-3 text-muted-foreground">
+                <div className="flex justify-between">
+                  <span className="label-caps">Delivery</span>
+                  <span className="font-semibold text-foreground">Free</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="label-caps text-foreground">Total</span>
+                  <span className="text-xl font-bold text-foreground">{formatMoney(total, currency)}</span>
+                </div>
+              </div>
+
+              <div className="space-y-1 border-t border-border pt-3">
+                <p><span className="text-muted-foreground">الاسم: </span>{name.trim()}</p>
+                <p><span className="text-muted-foreground">الجوال: </span>{phone.trim()}</p>
+                <p><span className="text-muted-foreground">العنوان: </span>{address.trim()}</p>
+                {notes.trim() && <p><span className="text-muted-foreground">ملاحظات: </span>{notes.trim()}</p>}
+              </div>
+            </div>
+
+            <DialogFooter className="flex-row gap-2 sm:justify-end">
+              <Button variant="outline" className="label-caps flex-1 sm:flex-none" onClick={() => setIsConfirmOpen(false)}>
+                رجوع للتعديل
+              </Button>
+              <Button
+                className="label-caps flex-1 bg-accent text-accent-foreground hover:bg-accent/90 sm:flex-none"
+                onClick={sendWhatsAppOrder}
+              >
+                <MessageCircle className="mr-2 h-4 w-4" /> تأكيد وإرسال
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </SheetContent>
     </Sheet>
+
   );
 }
