@@ -4,17 +4,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
-base {
 
-/* ...the rest of your base...*/
 
-#lovable-badge {
-
-display: none !important;
-
-{
-
-}
+#lovable-badge {display: none !important;}
 
 /*
  * Design system definition.
