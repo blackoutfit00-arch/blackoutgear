@@ -10,6 +10,7 @@ export interface CartItem {
   price: { amount: string; currencyCode: string };
   quantity: number;
   selectedOptions: Array<{ name: string; value: string }>;
+  image?: { url: string; altText: string | null } | null;
 }
 
 const CART_QUERY = `

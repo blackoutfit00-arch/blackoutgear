@@ -106,6 +106,7 @@ function ProductPage() {
       price: variant.price,
       quantity: 1,
       selectedOptions: variant.selectedOptions || [],
+      image: variant.image ?? images[imageIndex] ?? null,
     });
     toast.success("Added to cart", { position: "top-center", description: node.title });
   };

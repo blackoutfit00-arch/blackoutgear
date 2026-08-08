@@ -116,13 +116,12 @@ export function CartDrawer() {
                 {items.map((item) => (
                   <div key={item.variantId} className="flex gap-3">
                     <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded bg-muted">
-                      {item.product.node.images?.edges?.[0]?.node && (
-                        <img
-                          src={item.product.node.images.edges[0].node.url}
-                          alt={item.product.node.title}
-                          className="h-full w-full object-cover"
-                        />
-                      )}
+                      {(() => {
+                        const thumb = item.image ?? item.product.node.images?.edges?.[0]?.node;
+                        return thumb ? (
+                          <img src={thumb.url} alt={item.product.node.title} className="h-full w-full object-cover" />
+                        ) : null;
+                      })()}
                     </div>
                     <div className="min-w-0 flex-1">
                       <h4 className="truncate text-sm font-semibold">{item.product.node.title}</h4>
