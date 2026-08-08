@@ -8,7 +8,7 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
         <Link to="/" className="flex items-center gap-2.5">
           <img src="/bg-logo-header.png" alt={STORE_NAME} className="h-9 w-auto object-contain" />
-          <span className="label-caps text-2xl leading-none">{STORE_NAME}</span>
+          {/* Store name removed per user request */}
         </Link>
         <CartDrawer />
       </div>
