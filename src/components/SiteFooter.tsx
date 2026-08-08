@@ -45,7 +45,7 @@ export function SiteFooter() {
                   rel="noreferrer"
                   className="text-sm text-foreground/90 hover:text-primary"
                 >
-                  WhatsApp · +{WHATSAPP_NUMBER.slice(0, 3)} {WHATSAPP_NUMBER.slice(3)}
+                  WhatsApp ·&nbsp;
                 </a>
               </li>
               <li>
