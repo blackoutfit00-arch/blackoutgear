@@ -71,8 +71,8 @@ export function CartDrawer() {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="relative">
-          <ShoppingBag className="h-5 w-5" />
+        <Button variant="outline" size="icon" className="relative h-11 w-11">
+          <ShoppingBag className="h-6 w-6" />
           {totalItems > 0 && (
             <Badge className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs">
               {totalItems}
@@ -81,7 +81,7 @@ export function CartDrawer() {
         </Button>
       </SheetTrigger>
 
-      <SheetContent className="flex h-full w-full flex-col sm:max-w-lg">
+      <SheetContent className="flex h-full w-[90%] flex-col sm:max-w-lg">
         <SheetHeader className="flex-shrink-0">
           <SheetTitle className="label-caps text-xl">Your cart ({totalItems})</SheetTitle>
           <SheetDescription className="sr-only">Review your items and place your order on WhatsApp</SheetDescription>
