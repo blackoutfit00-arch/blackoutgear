@@ -1,4 +1,5 @@
 import { STORE_NAME, WHATSAPP_NUMBER } from "@/config/store";
+import footerLogo from "@/assets/bg-logo-metallic.png.asset.json";
 
 const INSTAGRAM_HANDLE = "blackoutgear.bh";
 
@@ -16,7 +17,7 @@ export function SiteFooter() {
 
       <div className="relative mx-auto max-w-6xl px-4 py-12">
         <div className="flex items-center gap-3">
-          <img src="/bg-logo.png" alt={STORE_NAME} className="h-10 w-auto object-contain" />
+          <img src={footerLogo.url} alt={STORE_NAME} className="h-7 w-auto object-contain" />
           <p className="label-caps text-xs text-muted-foreground">Sports Online Store · Bahrain</p>
         </div>
 
