@@ -4,6 +4,7 @@ export interface CategoryDef {
 }
 
 export const CATEGORIES: CategoryDef[] = [
+  { label: "All", match: () => true },
   { label: "Pants", match: (t) => /pant|sweat|sportssuit|jogger/.test(t) },
   { label: "Compression", match: (t) => /compression/.test(t) },
   { label: "Oversize", match: (t) => /oversize|oversized/.test(t) },
