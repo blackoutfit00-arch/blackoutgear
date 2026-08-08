@@ -47,17 +47,21 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
       <div className="flex flex-1 flex-col gap-3 p-4">
         <Link to="/product/$handle" params={{ handle: node.handle }} className="flex-1">
           <h3 className="text-lg leading-tight">{node.title}</h3>
-          <p className="mt-1 text-sm text-muted-foreground">{formatMoney(price.amount, price.currencyCode)}</p>
+          <p className="mt-1 text-base font-semibold text-foreground">{formatMoney(price.amount, price.currencyCode)}</p>
         </Link>
 
         {hasOptions ? (
-          <Button asChild variant="secondary" className="label-caps transition-colors hover:bg-primary hover:text-primary-foreground">
+          <Button asChild variant="secondary" className="label-caps transition-colors hover:bg-green-600 hover:text-white">
             <Link to="/product/$handle" params={{ handle: node.handle }}>
               View product
             </Link>
           </Button>
         ) : (
-          <Button onClick={handleAdd} disabled={isLoading || !firstAvailable?.availableForSale} className="label-caps">
+          <Button
+            onClick={handleAdd}
+            disabled={isLoading || !firstAvailable?.availableForSale}
+            className="label-caps transition-colors hover:bg-green-600 hover:text-white"
+          >
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : firstAvailable?.availableForSale ? "Add to cart" : "Sold out"}
           </Button>
         )}
