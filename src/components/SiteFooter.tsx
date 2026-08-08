@@ -8,13 +8,6 @@ const CUSTOMER_CARE_LINKS = ["FAQs", "Returns & Replacements", "Privacy Policy"]
 export function SiteFooter() {
   return (
     <footer className="relative overflow-hidden border-t border-border bg-card">
-      <img
-        src="/bg-logo.png"
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-10 top-1/2 hidden w-64 -translate-y-1/2 object-contain opacity-[0.06] sm:block"
-      />
-
       <div className="relative mx-auto max-w-6xl px-4 py-12">
         <div className="flex items-center gap-3">
           <img src={footerLogo.url} alt={STORE_NAME} className="h-7 w-auto object-contain" />
