@@ -11,7 +11,7 @@ export function SiteFooter() {
         src="/bg-logo.png"
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute -right-10 top-1/2 hidden h-64 w-64 -translate-y-1/2 opacity-[0.06] sm:block"
+        className="pointer-events-none absolute -right-10 top-1/2 hidden w-64 -translate-y-1/2 object-contain opacity-[0.06] sm:block"
       />
 
       <div className="relative mx-auto max-w-6xl px-4 py-12">
