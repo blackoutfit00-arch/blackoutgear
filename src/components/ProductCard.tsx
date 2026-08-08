@@ -26,7 +26,7 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
       quantity: 1,
       selectedOptions: firstAvailable.selectedOptions || [],
     });
-    toast.success("Added to cart", { position: "top-center", description: node.title });
+    toast.success("Added to cart", { description: node.title });
   };
 
   return (
