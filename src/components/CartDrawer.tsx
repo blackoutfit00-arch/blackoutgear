@@ -16,6 +16,7 @@ import { ShoppingBag, Minus, Plus, Trash2, MessageCircle, Percent } from "lucide
 import { toast } from "sonner";
 import { useCartStore } from "@/stores/cartStore";
 import { formatMoney } from "@/lib/shopify";
+import { createShopifyDraftOrder } from "@/lib/shopifyAdmin";
 import { DELIVERY_CURRENCY, STORE_NAME, WHATSAPP_NUMBER } from "@/config/store";
 import { cn } from "@/lib/utils";
 
@@ -71,6 +72,19 @@ export function CartDrawer() {
   };
 
   const sendWhatsAppOrder = () => {
+    // Create the order in Shopify Admin (as a Draft Order) in the background.
+    // Never blocks or breaks the WhatsApp flow if this fails.
+    createShopifyDraftOrder({
+      data: {
+        name: name.trim(),
+        phone: phone.trim(),
+        address: address.trim(),
+        notes: notes.trim(),
+        lineItems: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
+        discountPercent,
+      },
+    }).catch((err) => console.error("Failed to create Shopify draft order:", err));
+
     const lines = items.map((i) => {
       const opts = i.selectedOptions.map((o) => `${o.name}: ${o.value}`).join(" · ");
       const url = `${window.location.origin}/product/${i.product.node.handle}`;
