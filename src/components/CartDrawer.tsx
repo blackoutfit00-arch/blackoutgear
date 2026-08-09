@@ -12,11 +12,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ShoppingBag, Minus, Plus, Trash2, MessageCircle } from "lucide-react";
+import { ShoppingBag, Minus, Plus, Trash2, MessageCircle, Percent } from "lucide-react";
 import { toast } from "sonner";
 import { useCartStore } from "@/stores/cartStore";
 import { formatMoney } from "@/lib/shopify";
 import { DELIVERY_CURRENCY, STORE_NAME, WHATSAPP_NUMBER } from "@/config/store";
+import { cn } from "@/lib/utils";
 
 export function CartDrawer() {
   const [isOpen, setIsOpen] = useState(false);
@@ -129,27 +130,42 @@ export function CartDrawer() {
             </div>
           ) : (
             <>
-              <div className="flex-shrink-0 px-4 pb-2 pt-1">
-                <p className="mb-4 text-center text-sm font-bold leading-snug text-foreground">{discountMessage}</p>
-                <div className="relative mx-2 h-px bg-foreground/70">
+              <div className="flex-shrink-0 px-4 pb-8 pt-1">
+                <p className="mb-5 text-center text-sm font-bold leading-snug text-foreground">{discountMessage}</p>
+                <div className="relative mx-5">
+                  <div className="h-2 w-full rounded-full bg-muted">
+                    <div
+                      className="h-2 rounded-full bg-accent transition-all duration-300"
+                      style={{ width: `${progressPct}%` }}
+                    />
+                  </div>
                   {[
-                    { pos: 66.66, label: "10% off · 2 items" },
-                    { pos: 100, label: "15% off · 3+ items" },
+                    { pos: 66.66, label: "10% Off", reached: progressPct >= 66.66 },
+                    { pos: 100, label: "15% Off", reached: progressPct >= 100 },
                   ].map((m) => (
                     <div
                       key={m.pos}
-                      className="absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 -translate-x-1/2 rounded-full border-2 border-foreground bg-background"
+                      className="absolute top-1/2 flex -translate-y-1/2 -translate-x-1/2 flex-col items-center gap-1.5"
                       style={{ left: `${m.pos}%` }}
-                    />
+                    >
+                      <div
+                        className={cn(
+                          "flex h-9 w-9 items-center justify-center rounded-full border-2 bg-background",
+                          m.reached ? "border-accent text-accent" : "border-border text-muted-foreground",
+                        )}
+                      >
+                        <Percent className="h-4 w-4" />
+                      </div>
+                      <span
+                        className={cn(
+                          "absolute top-full mt-1 whitespace-nowrap text-[10px] font-medium",
+                          m.reached ? "text-accent" : "text-muted-foreground",
+                        )}
+                      >
+                        {m.label}
+                      </span>
+                    </div>
                   ))}
-                  <div
-                    className="absolute top-1/2 h-4 w-4 -translate-y-1/2 -translate-x-1/2 rounded-full border-2 border-foreground bg-background shadow-sm transition-all duration-300"
-                    style={{ left: `${progressPct}%` }}
-                  />
-                </div>
-                <div className="mt-3 flex justify-between text-[10px] text-muted-foreground">
-                  <span>10% off · 2 items</span>
-                  <span>15% off · 3+ items</span>
                 </div>
               </div>
 
