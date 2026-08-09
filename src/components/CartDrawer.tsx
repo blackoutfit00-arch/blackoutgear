@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { useCartStore } from "@/stores/cartStore";
 import { formatMoney } from "@/lib/shopify";
 import { DELIVERY_CURRENCY, STORE_NAME, WHATSAPP_NUMBER } from "@/config/store";
+import { cn } from "@/lib/utils";
 
 export function CartDrawer() {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,7 +33,22 @@ export function CartDrawer() {
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
   const currency = items[0]?.price.currencyCode ?? DELIVERY_CURRENCY;
   const subtotal = items.reduce((sum, i) => sum + parseFloat(i.price.amount) * i.quantity, 0);
-  const total = subtotal;
+  const discountPercent = totalItems >= 3 ? 15 : totalItems === 2 ? 10 : 0;
+  const discountAmount = (subtotal * discountPercent) / 100;
+  const total = subtotal - discountAmount;
+
+  // Progress toward the two discount tiers: 2 items → 10%, 3+ items → 15%
+  const TIER_2_POS = 66.66;
+  const TIER_3_POS = 100;
+  const progressPct = totalItems <= 0 ? 0 : totalItems === 1 ? TIER_2_POS / 2 : totalItems === 2 ? TIER_2_POS : TIER_3_POS;
+  const discountMessage =
+    discountPercent >= 15
+      ? "🎉 15% OFF unlocked on your order!"
+      : discountPercent === 10
+        ? "🎉 10% OFF unlocked — add 1 more item for 15% OFF!"
+        : totalItems === 1
+          ? "Add 1 more item to unlock 10% OFF"
+          : "Add 2 items to unlock 10% OFF, or 3+ for 15% OFF";
 
   useEffect(() => {
     if (isOpen) syncCart();
@@ -71,6 +87,8 @@ export function CartDrawer() {
       ...lines,
       "",
       `🚚 Delivery: Free`,
+      `Subtotal: ${formatMoney(subtotal, currency)}`,
+      discountPercent > 0 ? `🎉 Discount (${discountPercent}% off ${totalItems} items): -${formatMoney(discountAmount, currency)}` : "",
       `🧾 Order Total: ${formatMoney(total, currency)}`,
       notes.trim() ? `\n📝 Notes: ${notes.trim()}` : "",
     ]
@@ -112,6 +130,34 @@ export function CartDrawer() {
             </div>
           ) : (
             <>
+              <div className="flex-shrink-0 px-4 pb-2 pt-1">
+                <p className="mb-2.5 text-xs font-medium text-foreground">{discountMessage}</p>
+                <div className="relative h-1.5 w-full rounded-full bg-muted">
+                  <div
+                    className="absolute inset-y-0 left-0 rounded-full bg-accent transition-all duration-300"
+                    style={{ width: `${progressPct}%` }}
+                  />
+                  {[
+                    { pos: 66.66, active: progressPct >= 66.66 },
+                    { pos: 100, active: progressPct >= 100 },
+                  ].map((m) => (
+                    <div
+                      key={m.pos}
+                      className={cn(
+                        "absolute top-1/2 h-3 w-3 -translate-y-1/2 -translate-x-1/2 rounded-full border-2 border-background",
+                        m.active ? "bg-accent" : "bg-muted-foreground/40",
+                      )}
+                      style={{ left: `${m.pos}%` }}
+                    />
+                  ))}
+                </div>
+                <div className="mt-1.5 flex justify-between text-[10px] text-muted-foreground">
+                  <span>0%</span>
+                  <span>10% · 2 items</span>
+                  <span>15% · 3+ items</span>
+                </div>
+              </div>
+
               <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4">
                 {items.map((item) => (
                   <div key={item.variantId} className="flex gap-3">
@@ -151,6 +197,18 @@ export function CartDrawer() {
               </div>
 
               <div className="flex-shrink-0 space-y-3 border-t border-border px-4 pt-4">
+                {discountPercent > 0 && (
+                  <>
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span className="label-caps">Subtotal</span>
+                      <span className="font-semibold text-foreground">{formatMoney(subtotal, currency)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-accent">
+                      <span className="label-caps">Discount ({discountPercent}%)</span>
+                      <span className="font-semibold">-{formatMoney(discountAmount, currency)}</span>
+                    </div>
+                  </>
+                )}
                 <div className="flex justify-between text-sm text-muted-foreground">
                   <span className="label-caps">Delivery</span>
                   <span className="font-semibold text-foreground">Free</span>
@@ -211,6 +269,18 @@ export function CartDrawer() {
               </div>
 
               <div className="space-y-1 border-t border-border pt-3 text-muted-foreground">
+                {discountPercent > 0 && (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="label-caps">Subtotal</span>
+                      <span className="font-semibold text-foreground">{formatMoney(subtotal, currency)}</span>
+                    </div>
+                    <div className="flex justify-between text-accent">
+                      <span className="label-caps">Discount ({discountPercent}%)</span>
+                      <span className="font-semibold">-{formatMoney(discountAmount, currency)}</span>
+                    </div>
+                  </>
+                )}
                 <div className="flex justify-between">
                   <span className="label-caps">Delivery</span>
                   <span className="font-semibold text-foreground">Free</span>
