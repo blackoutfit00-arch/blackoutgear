@@ -1,8 +1,13 @@
+import { Link } from "@tanstack/react-router";
 import { STORE_NAME, WHATSAPP_NUMBER } from "@/config/store";
 
 const INSTAGRAM_HANDLE = "blackoutgear.bh";
 
-const CUSTOMER_CARE_LINKS = ["FAQs", "Returns & Replacements", "Privacy Policy"];
+const CUSTOMER_CARE_LINKS = [
+  { label: "FAQs", to: "/faq" as const },
+  { label: "Returns & Replacements", to: "/returns" as const },
+  { label: "Privacy Policy", to: "/privacy" as const },
+];
 
 export function SiteFooter() {
   return (
@@ -19,9 +24,11 @@ export function SiteFooter() {
           <div>
             <p className="label-caps text-xs text-muted-foreground">Customer Care</p>
             <ul className="mt-3 space-y-2">
-              {CUSTOMER_CARE_LINKS.map((label) => (
-                <li key={label} className="text-sm text-foreground/90">
-                  {label}
+              {CUSTOMER_CARE_LINKS.map((item) => (
+                <li key={item.label}>
+                  <Link to={item.to} className="text-sm text-foreground/90 hover:text-primary">
+                    {item.label}
+                  </Link>
                 </li>
               ))}
             </ul>
