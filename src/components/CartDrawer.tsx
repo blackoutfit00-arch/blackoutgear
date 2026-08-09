@@ -130,8 +130,8 @@ export function CartDrawer() {
             </div>
           ) : (
             <>
-              <div className="flex-shrink-0 px-4 pb-2 pt-1">
-                <p className="mb-2.5 text-xs font-medium text-foreground">{discountMessage}</p>
+              <div className="flex-shrink-0 px-4 pb-1.5 pt-1">
+                <p className="mb-1.5 text-[11px] font-medium leading-snug text-foreground">{discountMessage}</p>
                 <div className="relative h-1.5 w-full rounded-full bg-muted">
                   <div
                     className="absolute inset-y-0 left-0 rounded-full bg-accent transition-all duration-300"
@@ -151,17 +151,17 @@ export function CartDrawer() {
                     />
                   ))}
                 </div>
-                <div className="mt-1.5 flex justify-between text-[10px] text-muted-foreground">
+                <div className="mt-1 flex justify-between text-[9px] text-muted-foreground">
                   <span>0%</span>
                   <span>10% · 2 items</span>
                   <span>15% · 3+ items</span>
                 </div>
               </div>
 
-              <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4">
+              <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-4">
                 {items.map((item) => (
-                  <div key={item.variantId} className="flex gap-3">
-                    <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded bg-muted">
+                  <div key={item.variantId} className="flex gap-2.5">
+                    <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded bg-muted">
                       {(() => {
                         const thumb = item.image ?? item.product.node.images?.edges?.[0]?.node;
                         return thumb ? (
@@ -170,25 +170,25 @@ export function CartDrawer() {
                       })()}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="truncate text-sm font-semibold">{item.product.node.title}</h4>
-                      <p className="label-caps text-[11px] text-muted-foreground">
+                      <h4 className="truncate text-xs font-semibold">{item.product.node.title}</h4>
+                      <p className="label-caps text-[10px] text-muted-foreground">
                         {item.selectedOptions.map((o) => o.value).join(" · ")}
                       </p>
-                      <div className="mt-2 flex items-center gap-2">
-                        <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateQuantity(item.variantId, item.quantity - 1)}>
-                          <Minus className="h-3 w-3" />
+                      <div className="mt-1.5 flex items-center gap-1.5">
+                        <Button variant="outline" size="icon" className="h-6 w-6" onClick={() => updateQuantity(item.variantId, item.quantity - 1)}>
+                          <Minus className="h-2.5 w-2.5" />
                         </Button>
-                        <span className="w-6 text-center text-sm">{item.quantity}</span>
-                        <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateQuantity(item.variantId, item.quantity + 1)}>
-                          <Plus className="h-3 w-3" />
+                        <span className="w-5 text-center text-xs">{item.quantity}</span>
+                        <Button variant="outline" size="icon" className="h-6 w-6" onClick={() => updateQuantity(item.variantId, item.quantity + 1)}>
+                          <Plus className="h-2.5 w-2.5" />
                         </Button>
                       </div>
                     </div>
                     <div className="flex flex-col items-end justify-between">
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeItem(item.variantId)}>
-                        <Trash2 className="h-3.5 w-3.5" />
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeItem(item.variantId)}>
+                        <Trash2 className="h-3 w-3" />
                       </Button>
-                      <span className="text-sm font-bold">
+                      <span className="text-xs font-bold">
                         {formatMoney(parseFloat(item.price.amount) * item.quantity, item.price.currencyCode)}
                       </span>
                     </div>
@@ -196,26 +196,26 @@ export function CartDrawer() {
                 ))}
               </div>
 
-              <div className="flex-shrink-0 space-y-3 border-t border-border px-4 pt-4">
+              <div className="flex-shrink-0 space-y-2 border-t border-border px-4 pt-3">
                 {discountPercent > 0 && (
                   <>
-                    <div className="flex justify-between text-sm text-muted-foreground">
+                    <div className="flex justify-between text-xs text-muted-foreground">
                       <span className="label-caps">Subtotal</span>
                       <span className="font-semibold text-foreground">{formatMoney(subtotal, currency)}</span>
                     </div>
-                    <div className="flex justify-between text-sm text-accent">
+                    <div className="flex justify-between text-xs text-accent">
                       <span className="label-caps">Discount ({discountPercent}%)</span>
                       <span className="font-semibold">-{formatMoney(discountAmount, currency)}</span>
                     </div>
                   </>
                 )}
-                <div className="flex justify-between text-sm text-muted-foreground">
+                <div className="flex justify-between text-xs text-muted-foreground">
                   <span className="label-caps">Delivery</span>
                   <span className="font-semibold text-foreground">Free</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="label-caps text-sm">Total</span>
-                  <span className="text-2xl font-bold">{formatMoney(total, currency)}</span>
+                  <span className="text-xl font-bold">{formatMoney(total, currency)}</span>
                 </div>
 
                 <div className="space-y-2 pt-1">
