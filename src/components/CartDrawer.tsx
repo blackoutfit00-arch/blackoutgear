@@ -130,12 +130,15 @@ export function CartDrawer() {
             </div>
           ) : (
             <>
-              <div className="flex-shrink-0 px-4 pb-1.5 pt-1">
-                <p className="mb-1.5 text-[11px] font-medium leading-snug text-foreground">{discountMessage}</p>
-                <div className="relative h-1.5 w-full rounded-full bg-muted">
+              <div className="flex-shrink-0 px-4 pb-2 pt-1">
+                <p className="mb-3 text-sm font-bold leading-snug text-foreground">{discountMessage}</p>
+                <div className="relative h-2 w-full rounded-full bg-muted">
                   <div
-                    className="absolute inset-y-0 left-0 rounded-full bg-accent transition-all duration-300"
-                    style={{ width: `${progressPct}%` }}
+                    className="absolute inset-y-0 left-0 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${progressPct}%`,
+                      background: "linear-gradient(90deg, hsl(var(--accent)) 0%, hsl(var(--accent)/0.7) 100%)",
+                    }}
                   />
                   {[
                     { pos: 66.66, active: progressPct >= 66.66 },
@@ -144,14 +147,18 @@ export function CartDrawer() {
                     <div
                       key={m.pos}
                       className={cn(
-                        "absolute top-1/2 h-3 w-3 -translate-y-1/2 -translate-x-1/2 rounded-full border-2 border-background",
+                        "absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 -translate-x-1/2 rounded-full border-2 border-background",
                         m.active ? "bg-accent" : "bg-muted-foreground/40",
                       )}
                       style={{ left: `${m.pos}%` }}
                     />
                   ))}
+                  <div
+                    className="absolute top-1/2 h-4 w-4 -translate-y-1/2 -translate-x-1/2 rounded-full border-2 border-accent bg-white shadow-[0_1px_4px_rgba(0,0,0,0.4)] transition-all duration-300"
+                    style={{ left: `${progressPct}%` }}
+                  />
                 </div>
-                <div className="mt-1 flex justify-between text-[9px] text-muted-foreground">
+                <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
                   <span>0%</span>
                   <span>10% · 2 items</span>
                   <span>15% · 3+ items</span>
