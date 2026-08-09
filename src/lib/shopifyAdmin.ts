@@ -19,23 +19,70 @@ export type DraftOrderResult =
   | { ok: true; orderName?: string }
   | { ok: false; error: string };
 
+// In-memory cache for the access token obtained via the Client Credentials
+// Grant, so we don't request a new one on every single order (tokens are
+// valid for ~24h). This is per server-process — fine for a low-traffic store.
+let cachedToken: { accessToken: string; expiresAt: number } | null = null;
+
+async function getAdminAccessToken(): Promise<string | null> {
+  if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) {
+    return cachedToken.accessToken;
+  }
+
+  const clientId = process.env.SHOPIFY_APP_CLIENT_ID;
+  const clientSecret = process.env.SHOPIFY_APP_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    console.error("[shopifyAdmin] SHOPIFY_APP_CLIENT_ID / SHOPIFY_APP_CLIENT_SECRET are not set.");
+    return null;
+  }
+
+  try {
+    const res = await fetch(`https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/admin/oauth/access_token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: clientId,
+        client_secret: clientSecret,
+      }),
+    });
+
+    if (!res.ok) {
+      console.error("[shopifyAdmin] Failed to obtain access token:", res.status, await res.text());
+      return null;
+    }
+
+    const json = await res.json();
+    const accessToken = json?.access_token as string | undefined;
+    const expiresIn = (json?.expires_in as number | undefined) ?? 60 * 60 * 24; // default 24h
+    if (!accessToken) {
+      console.error("[shopifyAdmin] Token response missing access_token:", json);
+      return null;
+    }
+
+    cachedToken = { accessToken, expiresAt: Date.now() + expiresIn * 1000 };
+    return accessToken;
+  } catch (err) {
+    console.error("[shopifyAdmin] Token request failed:", err);
+    return null;
+  }
+}
+
 /**
  * Creates a Draft Order in Shopify Admin whenever a customer places an order
  * on the site. This does NOT charge or confirm anything automatically — it
  * just makes the order visible in Shopify Admin so it can be reviewed and
  * confirmed manually (same order details also go out over WhatsApp).
  *
- * Requires SHOPIFY_ADMIN_API_TOKEN to be set as a server environment
- * variable (never exposed to the browser). Created via a custom app in
- * Shopify Admin → Settings → Apps and sales channels → Develop apps, with
- * the write_draft_orders scope.
+ * Uses the OAuth 2.0 Client Credentials Grant: exchanges SHOPIFY_APP_CLIENT_ID
+ * + SHOPIFY_APP_CLIENT_SECRET (server env vars, never sent to the browser)
+ * for a short-lived Admin API access token on demand.
  */
 export const createShopifyDraftOrder = createServerFn({ method: "POST" })
   .validator((data: DraftOrderPayload) => data)
   .handler(async ({ data }): Promise<DraftOrderResult> => {
-    const token = process.env.SHOPIFY_ADMIN_API_TOKEN;
+    const token = await getAdminAccessToken();
     if (!token) {
-      console.error("[shopifyAdmin] SHOPIFY_ADMIN_API_TOKEN is not set — skipping draft order creation.");
       return { ok: false, error: "missing_token" };
     }
 
