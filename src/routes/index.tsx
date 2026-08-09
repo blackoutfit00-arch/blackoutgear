@@ -54,14 +54,14 @@ function Index() {
   const available = useMemo(() => {
     if (!products) return CATEGORIES.slice(0, 1);
     return CATEGORIES.filter(
-      (c) => c.label === "All" || products.some((p: ShopifyProduct) => c.match(p.node.title.toLowerCase())),
+      (c) => c.label === "All" || products.some((p: ShopifyProduct) => c.match(p.node)),
     );
   }, [products]);
 
   const filtered = useMemo(() => {
     if (!products) return [];
     const cat = CATEGORIES.find((c) => c.label === active);
-    let result = cat ? products.filter((p: ShopifyProduct) => cat.match(p.node.title.toLowerCase())) : products;
+    let result = cat ? products.filter((p: ShopifyProduct) => cat.match(p.node)) : products;
     if (q && q.trim()) {
       const needle = q.trim().toLowerCase();
       result = result.filter((p: ShopifyProduct) => p.node.title.toLowerCase().includes(needle));
@@ -93,9 +93,13 @@ function Index() {
               onClick={() => setActive(c.label)}
               className={cn(
                 "label-caps shrink-0 border px-5 py-2.5 text-sm transition-colors",
-                active === c.label
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-transparent text-muted-foreground hover:border-primary/60 hover:text-foreground",
+                c.label === "Offers"
+                  ? active === c.label
+                    ? "border-red-600 bg-red-600 text-white"
+                    : "border-red-600/70 bg-transparent text-red-500 hover:bg-red-600/10"
+                  : active === c.label
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-transparent text-muted-foreground hover:border-primary/60 hover:text-foreground",
               )}
             >
               {c.label}
