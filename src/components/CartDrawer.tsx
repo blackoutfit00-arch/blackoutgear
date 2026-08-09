@@ -12,12 +12,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ShoppingBag, Minus, Plus, Trash2, MessageCircle, Percent } from "lucide-react";
+import { ShoppingBag, Minus, Plus, Trash2, MessageCircle, Percent, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { useCartStore } from "@/stores/cartStore";
 import { formatMoney } from "@/lib/shopify";
 import { createShopifyDraftOrder } from "@/lib/shopifyAdmin";
-import { DELIVERY_CURRENCY, STORE_NAME, WHATSAPP_NUMBER } from "@/config/store";
+import { DELIVERY_CURRENCY, DELIVERY_FEE, STORE_NAME, WHATSAPP_NUMBER } from "@/config/store";
 import { cn } from "@/lib/utils";
 
 export function CartDrawer() {
@@ -34,9 +34,12 @@ export function CartDrawer() {
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
   const currency = items[0]?.price.currencyCode ?? DELIVERY_CURRENCY;
   const subtotal = items.reduce((sum, i) => sum + parseFloat(i.price.amount) * i.quantity, 0);
+  const FREE_DELIVERY_THRESHOLD = 15;
   const discountPercent = totalItems >= 3 ? 15 : totalItems === 2 ? 10 : 0;
   const discountAmount = (subtotal * discountPercent) / 100;
-  const total = subtotal - discountAmount;
+  const isFreeDelivery = subtotal >= FREE_DELIVERY_THRESHOLD;
+  const deliveryFee = isFreeDelivery ? 0 : DELIVERY_FEE;
+  const total = subtotal - discountAmount + deliveryFee;
 
   // Progress toward the two discount tiers: 2 items → 10%, 3+ items → 15%
   const TIER_2_POS = 66.66;
@@ -100,7 +103,7 @@ export function CartDrawer() {
       "",
       ...lines,
       "",
-      `🚚 Delivery: Free`,
+      `🚚 Delivery: ${isFreeDelivery ? "Free" : formatMoney(deliveryFee, currency)}`,
       `Subtotal: ${formatMoney(subtotal, currency)}`,
       discountPercent > 0 ? `🎉 Discount (${discountPercent}% off ${totalItems} items): -${formatMoney(discountAmount, currency)}` : "",
       `🧾 Order Total: ${formatMoney(total, currency)}`,
@@ -154,11 +157,12 @@ export function CartDrawer() {
                     />
                   </div>
                   {[
-                    { pos: 66.66, label: "10% Off", reached: progressPct >= 66.66 },
-                    { pos: 100, label: "15% Off", reached: progressPct >= 100 },
+                    { pos: 0, label: "Free Delivery", reached: isFreeDelivery, icon: <Truck className="h-4 w-4" /> },
+                    { pos: 66.66, label: "10% Off", reached: progressPct >= 66.66, icon: <Percent className="h-4 w-4" /> },
+                    { pos: 100, label: "15% Off", reached: progressPct >= 100, icon: <Percent className="h-4 w-4" /> },
                   ].map((m) => (
                     <div
-                      key={m.pos}
+                      key={m.label}
                       className="absolute top-1/2 flex -translate-y-1/2 -translate-x-1/2 flex-col items-center gap-1.5"
                       style={{ left: `${m.pos}%` }}
                     >
@@ -168,7 +172,7 @@ export function CartDrawer() {
                           m.reached ? "border-accent text-accent" : "border-border text-muted-foreground",
                         )}
                       >
-                        <Percent className="h-4 w-4" />
+                        {m.icon}
                       </div>
                       <span
                         className={cn(
@@ -236,7 +240,9 @@ export function CartDrawer() {
                 )}
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span className="label-caps">Delivery</span>
-                  <span className="font-semibold text-foreground">Free</span>
+                  <span className="font-semibold text-foreground">
+                    {isFreeDelivery ? "Free" : formatMoney(deliveryFee, currency)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="label-caps text-sm">Total</span>
@@ -308,7 +314,9 @@ export function CartDrawer() {
                 )}
                 <div className="flex justify-between">
                   <span className="label-caps">Delivery</span>
-                  <span className="font-semibold text-foreground">Free</span>
+                  <span className="font-semibold text-foreground">
+                    {isFreeDelivery ? "Free" : formatMoney(deliveryFee, currency)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="label-caps text-foreground">Total</span>
