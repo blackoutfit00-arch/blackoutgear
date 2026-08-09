@@ -15,9 +15,8 @@ export function SiteFooter() {
       <div className="relative mx-auto max-w-6xl px-4 py-12">
         <div className="flex items-center gap-3">
           <img src="/bg-logo.png" alt={STORE_NAME} className="h-7 w-auto object-contain" />
+          <p className="label-caps text-xs text-muted-foreground">Sports Online Store · Bahrain</p>
         </div>
-
-        <h2 className="label-caps mt-4 text-lg text-foreground">{STORE_NAME}</h2>
 
         <div className="mt-8 grid grid-cols-1 gap-10 sm:grid-cols-2">
           <div>
