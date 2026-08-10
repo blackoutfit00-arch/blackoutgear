@@ -101,7 +101,7 @@ export function CartDrawer() {
               <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4">
                 {items.map((item) => (
                   <div key={item.variantId} className="flex gap-3 border-b border-border pb-3 last:border-0">
-                    <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-muted">
+                    <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md bg-muted">
                       {(() => {
                         const thumb = item.image ?? item.product.node.images?.edges?.[0]?.node;
                         return thumb ? (
@@ -181,12 +181,11 @@ export function CartDrawer() {
 
                 <Button
                   asChild
-                  size="lg"
-                  className="label-caps mb-4 w-full bg-accent text-accent-foreground hover:bg-accent/90"
+                  className="label-caps mb-4 h-14 w-full rounded-xl text-base bg-accent text-accent-foreground hover:bg-accent/90"
                   onClick={() => setIsOpen(false)}
                 >
                   <Link to="/checkout">
-                    Checkout <ArrowRight className="ml-2 h-4 w-4" />
+                    Checkout <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
               </div>
