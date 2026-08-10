@@ -185,10 +185,10 @@ export function CartDrawer() {
                 </div>
               </div>
 
-              <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-4">
+              <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4">
                 {items.map((item) => (
-                  <div key={item.variantId} className="flex gap-2.5">
-                    <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded bg-muted">
+                  <div key={item.variantId} className="flex gap-3 border-b border-border pb-3 last:border-0">
+                    <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-muted">
                       {(() => {
                         const thumb = item.image ?? item.product.node.images?.edges?.[0]?.node;
                         return thumb ? (
@@ -197,27 +197,46 @@ export function CartDrawer() {
                       })()}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="truncate text-xs font-semibold">{item.product.node.title}</h4>
-                      <p className="label-caps text-[10px] text-muted-foreground">
-                        {item.selectedOptions.map((o) => o.value).join(" · ")}
-                      </p>
-                      <div className="mt-1.5 flex items-center gap-1.5">
-                        <Button variant="outline" size="icon" className="h-6 w-6" onClick={() => updateQuantity(item.variantId, item.quantity - 1)}>
-                          <Minus className="h-2.5 w-2.5" />
-                        </Button>
-                        <span className="w-5 text-center text-xs">{item.quantity}</span>
-                        <Button variant="outline" size="icon" className="h-6 w-6" onClick={() => updateQuantity(item.variantId, item.quantity + 1)}>
-                          <Plus className="h-2.5 w-2.5" />
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <h4 className="truncate text-sm font-semibold">{item.product.node.title}</h4>
+                          <p className="label-caps text-[10px] text-muted-foreground">
+                            {item.selectedOptions.map((o) => o.value).join(" · ")}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 flex-shrink-0 text-red-500 hover:bg-red-500/10 hover:text-red-500"
+                          onClick={() => removeItem(item.variantId)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
-                    </div>
-                    <div className="flex flex-col items-end justify-between">
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeItem(item.variantId)}>
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                      <span className="text-xs font-bold">
-                        {formatMoney(parseFloat(item.price.amount) * item.quantity, item.price.currencyCode)}
-                      </span>
+                      <div className="mt-2 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-6 w-6 rounded-full"
+                            onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
+                          >
+                            <Minus className="h-2.5 w-2.5" />
+                          </Button>
+                          <span className="w-5 text-center text-xs">{item.quantity}</span>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-6 w-6 rounded-full"
+                            onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
+                          >
+                            <Plus className="h-2.5 w-2.5" />
+                          </Button>
+                        </div>
+                        <span className="text-sm font-bold">
+                          {formatMoney(parseFloat(item.price.amount) * item.quantity, item.price.currencyCode)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))}
