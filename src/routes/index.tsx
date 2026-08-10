@@ -92,7 +92,7 @@ function Index() {
               key={c.label}
               onClick={() => setActive(c.label)}
               className={cn(
-                "label-caps shrink-0 border px-5 py-2.5 text-sm transition-colors",
+                "label-caps shrink-0 rounded-full border px-5 py-2.5 text-sm transition-colors",
                 c.label === "Offers"
                   ? active === c.label
                     ? "border-red-600 bg-red-600 text-white"
