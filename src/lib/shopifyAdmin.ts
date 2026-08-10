@@ -29,8 +29,8 @@ async function getAdminAccessToken(): Promise<string | null> {
     return cachedToken.accessToken;
   }
 
-  const clientId = process.env.SHOPIFY_APP_CLIENT_ID;
-  const clientSecret = process.env.SHOPIFY_APP_CLIENT_SECRET;
+  const clientId = process.env["SHOPIFY_APP_CLIENT_ID"];
+  const clientSecret = process.env["SHOPIFY_APP_CLIENT_SECRET"];
   if (!clientId || !clientSecret) {
     console.error("[shopifyAdmin] SHOPIFY_APP_CLIENT_ID / SHOPIFY_APP_CLIENT_SECRET are not set.");
     return null;
@@ -113,7 +113,7 @@ export const createShopifyDraftOrder = createServerFn({ method: "POST" })
     };
 
     if (data.discountPercent > 0) {
-      input.appliedDiscount = {
+      input["appliedDiscount"] = {
         valueType: "PERCENTAGE",
         value: data.discountPercent,
         title: `${data.discountPercent}% off (${totalItems} items)`,
