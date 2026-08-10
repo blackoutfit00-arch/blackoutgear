@@ -310,7 +310,7 @@ function CheckoutPage() {
           size="lg"
           className="label-caps h-14 w-full rounded-xl text-base bg-accent text-accent-foreground hover:bg-accent/90"
         >
-          <MessageCircle className="mr-2 h-5 w-5" /> Place order & open WhatsApp
+          <MessageCircle className="mr-2 h-5 w-5" /> Place Order
         </Button>
       </main>
 
