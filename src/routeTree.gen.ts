@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as OrderConfirmedRouteImport } from './routes/order-confirmed'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ReturnsRouteImport } from './routes/returns'
 import { Route as ProductHandleRouteImport } from './routes/product.$handle'
@@ -29,6 +30,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrderConfirmedRoute = OrderConfirmedRouteImport.update({
+  id: '/order-confirmed',
+  path: '/order-confirmed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/faq': typeof FaqRoute
+  '/order-confirmed': typeof OrderConfirmedRoute
   '/privacy': typeof PrivacyRoute
   '/returns': typeof ReturnsRoute
   '/product/$handle': typeof ProductHandleRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/faq': typeof FaqRoute
+  '/order-confirmed': typeof OrderConfirmedRoute
   '/privacy': typeof PrivacyRoute
   '/returns': typeof ReturnsRoute
   '/product/$handle': typeof ProductHandleRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/faq': typeof FaqRoute
+  '/order-confirmed': typeof OrderConfirmedRoute
   '/privacy': typeof PrivacyRoute
   '/returns': typeof ReturnsRoute
   '/product/$handle': typeof ProductHandleRoute
@@ -75,14 +84,28 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/checkout' | '/faq' | '/privacy' | '/returns' | '/product/$handle'
+    | '/'
+    | '/checkout'
+    | '/faq'
+    | '/order-confirmed'
+    | '/privacy'
+    | '/returns'
+    | '/product/$handle'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/checkout' | '/faq' | '/privacy' | '/returns' | '/product/$handle'
+  to:
+    | '/'
+    | '/checkout'
+    | '/faq'
+    | '/order-confirmed'
+    | '/privacy'
+    | '/returns'
+    | '/product/$handle'
   id:
     | '__root__'
     | '/'
     | '/checkout'
     | '/faq'
+    | '/order-confirmed'
     | '/privacy'
     | '/returns'
     | '/product/$handle'
@@ -92,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckoutRoute: typeof CheckoutRoute
   FaqRoute: typeof FaqRoute
+  OrderConfirmedRoute: typeof OrderConfirmedRoute
   PrivacyRoute: typeof PrivacyRoute
   ReturnsRoute: typeof ReturnsRoute
   ProductHandleRoute: typeof ProductHandleRoute
@@ -118,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/faq'
       fullPath: '/faq'
       preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/order-confirmed': {
+      id: '/order-confirmed'
+      path: '/order-confirmed'
+      fullPath: '/order-confirmed'
+      preLoaderRoute: typeof OrderConfirmedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -148,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckoutRoute: CheckoutRoute,
   FaqRoute: FaqRoute,
+  OrderConfirmedRoute: OrderConfirmedRoute,
   PrivacyRoute: PrivacyRoute,
   ReturnsRoute: ReturnsRoute,
   ProductHandleRoute: ProductHandleRoute,
@@ -155,13 +187,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

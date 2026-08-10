@@ -18,6 +18,7 @@ import { MessageCircle, ShoppingBag, Minus, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatMoney } from "@/lib/shopify";
 import { createShopifyDraftOrder } from "@/lib/shopifyAdmin";
+import { saveLastOrder, generateOrderNumber } from "@/lib/lastOrder";
 import { useCartTotals } from "@/lib/cartTotals";
 import { useCartStore } from "@/stores/cartStore";
 import { STORE_NAME, WHATSAPP_NUMBER, STORE_TAGLINE } from "@/config/store";
@@ -87,49 +88,54 @@ function CheckoutPage() {
     setIsConfirmOpen(true);
   };
 
-  const sendWhatsAppOrder = () => {
-    // Create the order in Shopify Admin (as a Draft Order) in the background.
-    // Never blocks or breaks the WhatsApp flow if this fails.
+  const sendWhatsAppOrder = async () => {
+    const orderNumber = generateOrderNumber();
+
+    const order = {
+      orderNumber,
+      name: name.trim(),
+      phone: phone.trim(),
+      address: fullAddress,
+      notes: notes.trim(),
+      currency,
+      subtotal,
+      discountPercent,
+      discountAmount,
+      isFreeDelivery,
+      deliveryFee,
+      total,
+      totalItems,
+      lines: items.map((i) => ({
+        title: i.product.node.title,
+        options: i.selectedOptions.map((o) => `${o.name}: ${o.value}`).join(" · "),
+        quantity: i.quantity,
+        lineTotal: parseFloat(i.price.amount) * i.quantity,
+        handle: i.product.node.handle,
+      })),
+    };
+
+    const lineItems = items.map((i) => ({ variantId: i.variantId, quantity: i.quantity }));
+
+    saveLastOrder(order);
+    setIsConfirmOpen(false);
+
+    // Send the order to Shopify Admin as a Draft Order so it shows up in the
+    // dashboard. Never blocks the customer flow if it fails.
     createShopifyDraftOrder({
       data: {
-        name: name.trim(),
-        phone: phone.trim(),
-        address: fullAddress,
-        notes: notes.trim(),
-        lineItems: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
+        name: order.name,
+        phone: order.phone,
+        address: order.address,
+        notes: [`Website order #${orderNumber}`, order.notes].filter(Boolean).join(" — "),
+        lineItems,
         discountPercent,
       },
     }).catch((err) => console.error("Failed to create Shopify draft order:", err));
 
-    const lines = items.map((i) => {
-      const opts = i.selectedOptions.map((o) => `${o.name}: ${o.value}`).join(" · ");
-      const url = `${window.location.origin}/product/${i.product.node.handle}`;
-      return `• ${i.product.node.title}${opts ? ` · ${opts}` : ""} · Qty: ${i.quantity}\n  ${url}`;
-    });
-
-    const message = [
-      `Hi ${STORE_NAME}! New Order (pending confirmation)`,
-      "",
-      `👤 ${name.trim()}`,
-      `📞 +973 ${phone.trim()}`,
-      `🚚 Delivery to: ${fullAddress}`,
-      `💳 Payment: BenefitPay`,
-      "",
-      ...lines,
-      "",
-      `🚚 Delivery: ${isFreeDelivery ? "Free" : formatMoney(deliveryFee, currency)}`,
-      `Subtotal: ${formatMoney(subtotal, currency)}`,
-      discountPercent > 0 ? `🎉 Discount (${discountPercent}% off ${totalItems} items): -${formatMoney(discountAmount, currency)}` : "",
-      `🧾 Order Total: ${formatMoney(total, currency)}`,
-      notes.trim() ? `\n📝 Notes: ${notes.trim()}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
-    setIsConfirmOpen(false);
-    navigate({ to: "/" });
+    clearCart();
+    navigate({ to: "/order-confirmed" });
   };
+
 
   if (items.length === 0) {
     return (
