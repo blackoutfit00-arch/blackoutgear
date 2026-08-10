@@ -50,7 +50,7 @@ function BenefitPayBadge() {
 
 function CheckoutPage() {
   const navigate = useNavigate();
-  const { updateQuantity, removeItem } = useCartStore();
+  const { updateQuantity, removeItem, clearCart } = useCartStore();
   const { items, totalItems, currency, subtotal, discountPercent, discountAmount, isFreeDelivery, deliveryFee, total } =
     useCartTotals();
 
