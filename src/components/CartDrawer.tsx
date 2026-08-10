@@ -59,16 +59,36 @@ export function CartDrawer() {
             </div>
           ) : (
             <>
-              <div className="flex-shrink-0 px-4 pb-8 pt-1">
-                <p className="mb-6 text-center text-sm font-bold leading-snug text-foreground">{discountMessage}</p>
-                <div className="relative mx-5">
-                  <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
+              <div className="flex-shrink-0 px-4 pb-9 pt-1">
+                <p className="mb-7 text-center text-sm leading-snug text-foreground">
+                  {discountPercent >= 15 ? (
+                    <>
+                      🎉 <span className="font-bold">15% OFF</span> unlocked on your order!
+                    </>
+                  ) : isFreeDelivery ? (
+                    <>
+                      🎉 <span className="font-bold">Free Delivery</span> unlocked — add 1 more item for{" "}
+                      <span className="font-bold">15% OFF</span>!
+                    </>
+                  ) : totalItems === 1 ? (
+                    <>
+                      Add 1 more item to unlock <span className="font-bold">Free Delivery</span>
+                    </>
+                  ) : (
+                    <>
+                      Add 2 items for <span className="font-bold">Free Delivery</span>, or 3+ for{" "}
+                      <span className="font-bold">15% OFF</span>
+                    </>
+                  )}
+                </p>
+                <div className="relative mx-6">
+                  <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
                     <div
-                      className="h-2.5 rounded-full transition-all duration-300"
+                      className="h-3 rounded-full transition-all duration-300"
                       style={{
                         width: `${progressPct}%`,
                         backgroundImage:
-                          "repeating-linear-gradient(45deg, hsl(var(--accent)) 0px, hsl(var(--accent)) 6px, hsl(var(--accent) / 0.55) 6px, hsl(var(--accent) / 0.55) 12px)",
+                          "repeating-linear-gradient(45deg, hsl(var(--accent)) 0px, hsl(var(--accent)) 7px, hsl(var(--accent) / 0.55) 7px, hsl(var(--accent) / 0.55) 14px)",
                       }}
                     />
                   </div>
@@ -81,7 +101,7 @@ export function CartDrawer() {
                     <span
                       key={m.label}
                       className={cn(
-                        "absolute top-full mt-2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium",
+                        "absolute top-full mt-2.5 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium",
                         m.reached ? "text-accent" : "text-muted-foreground",
                       )}
                       style={{ left: `${m.pos}%` }}
@@ -92,10 +112,10 @@ export function CartDrawer() {
 
                   {/* Single moving marker showing the next/current reward icon */}
                   <div
-                    className="absolute top-1/2 flex h-9 w-9 -translate-y-1/2 -translate-x-1/2 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-md transition-all duration-300"
+                    className="absolute top-1/2 flex h-11 w-11 -translate-y-1/2 -translate-x-1/2 items-center justify-center rounded-full border-4 border-background bg-accent text-accent-foreground shadow-lg transition-all duration-300"
                     style={{ left: `${progressPct}%` }}
                   >
-                    {isFreeDelivery ? <Percent className="h-4 w-4" /> : <Truck className="h-4 w-4" />}
+                    {isFreeDelivery ? <Percent className="h-5 w-5" /> : <Truck className="h-5 w-5" />}
                   </div>
                 </div>
               </div>
