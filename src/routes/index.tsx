@@ -95,11 +95,11 @@ function Index() {
                 "label-caps shrink-0 rounded-full border px-5 py-2.5 text-sm transition-colors",
                 c.label === "Offers"
                   ? active === c.label
-                    ? "border-red-600 bg-red-600 text-white"
-                    : "border-red-600/70 bg-transparent text-red-500 hover:bg-red-600/10"
+                    ? "border-destructive bg-destructive text-destructive-foreground"
+                    : "border-destructive/50 bg-destructive/15 text-destructive hover:bg-destructive/25"
                   : active === c.label
                     ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-transparent text-muted-foreground hover:border-primary/60 hover:text-foreground",
+                    : "border-secondary bg-secondary text-secondary-foreground hover:border-primary/60 hover:text-foreground",
               )}
             >
               {c.label}
