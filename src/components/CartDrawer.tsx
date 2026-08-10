@@ -81,7 +81,7 @@ export function CartDrawer() {
                     </>
                   )}
                 </p>
-                <div className="relative mx-6">
+                <div className="relative mx-2">
                   <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
                     <div
                       className="h-3 rounded-full transition-all duration-300"
