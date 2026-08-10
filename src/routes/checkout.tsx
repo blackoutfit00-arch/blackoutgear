@@ -38,13 +38,11 @@ function SectionCard({ title, children }: { title: string; children: ReactNode }
   );
 }
 
-// Stylized BenefitPay badge — not the official brand logo (couldn't source a
-// licensed asset), so this uses their known red brand color + a "B" mark
-// instead of reproducing their actual logo mark.
+// Official BenefitPay logo, provided by the store owner.
 function BenefitPayBadge() {
   return (
-    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-[#E4002B] text-white">
-      <span className="text-base font-black">B</span>
+    <div className="h-9 w-9 flex-shrink-0 overflow-hidden rounded-md">
+      <img src="/benefitpay-logo.jpg" alt="BenefitPay" className="h-full w-full object-cover" />
     </div>
   );
 }
