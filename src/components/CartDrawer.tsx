@@ -1,121 +1,34 @@
 import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "@/components/ui/sheet";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { ShoppingBag, Minus, Plus, Trash2, MessageCircle, Percent, Truck } from "lucide-react";
-import { toast } from "sonner";
+import { ShoppingBag, Minus, Plus, Trash2, Percent, Truck, ArrowRight } from "lucide-react";
 import { useCartStore } from "@/stores/cartStore";
 import { formatMoney } from "@/lib/shopify";
-import { createShopifyDraftOrder } from "@/lib/shopifyAdmin";
-import { DELIVERY_CURRENCY, DELIVERY_FEE, STORE_NAME, WHATSAPP_NUMBER } from "@/config/store";
+import { useCartTotals } from "@/lib/cartTotals";
 import { cn } from "@/lib/utils";
 
 export function CartDrawer() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [notes, setNotes] = useState("");
-
-
-  const { items, updateQuantity, removeItem, syncCart } = useCartStore();
-
-  const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
-  const currency = items[0]?.price.currencyCode ?? DELIVERY_CURRENCY;
-  const subtotal = items.reduce((sum, i) => sum + parseFloat(i.price.amount) * i.quantity, 0);
-  const discountPercent = totalItems >= 3 ? 15 : 0;
-  const discountAmount = (subtotal * discountPercent) / 100;
-  const isFreeDelivery = totalItems >= 2;
-  const deliveryFee = isFreeDelivery ? 0 : DELIVERY_FEE;
-  const total = subtotal - discountAmount + deliveryFee;
-
-  // Progress toward the two tiers: 2 items → free delivery, 3+ items → 15% off
-  const TIER_2_POS = 50;
-  const TIER_3_POS = 100;
-  const progressPct = totalItems <= 0 ? 0 : totalItems === 1 ? TIER_2_POS / 2 : totalItems === 2 ? TIER_2_POS : TIER_3_POS;
-  const discountMessage =
-    discountPercent >= 15
-      ? "🎉 15% OFF unlocked on your order!"
-      : isFreeDelivery
-        ? "🎉 Free Delivery unlocked — add 1 more item for 15% OFF!"
-        : totalItems === 1
-          ? "Add 1 more item to unlock Free Delivery"
-          : "Add 2 items for Free Delivery, or 3+ for 15% OFF";
+  const { updateQuantity, removeItem, syncCart } = useCartStore();
+  const {
+    items,
+    totalItems,
+    currency,
+    subtotal,
+    discountPercent,
+    discountAmount,
+    isFreeDelivery,
+    deliveryFee,
+    total,
+    progressPct,
+    discountMessage,
+  } = useCartTotals();
 
   useEffect(() => {
     if (isOpen) syncCart();
   }, [isOpen, syncCart]);
-
-  const handleWhatsAppOrder = () => {
-    if (!/^[\p{L}\s'-]{2,}$/u.test(name.trim())) {
-      toast.error("Please enter your name (letters only)", { position: "top-center" });
-      return;
-    }
-    if (!/^\d{8}$/.test(phone.trim())) {
-      toast.error("Phone must be 8 digits", { position: "top-center" });
-      return;
-    }
-    if (address.trim().length < 6) {
-      toast.error("Please enter your delivery address", { position: "top-center" });
-      return;
-    }
-    setIsConfirmOpen(true);
-  };
-
-  const sendWhatsAppOrder = () => {
-    // Create the order in Shopify Admin (as a Draft Order) in the background.
-    // Never blocks or breaks the WhatsApp flow if this fails.
-    createShopifyDraftOrder({
-      data: {
-        name: name.trim(),
-        phone: phone.trim(),
-        address: address.trim(),
-        notes: notes.trim(),
-        lineItems: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
-        discountPercent,
-      },
-    }).catch((err) => console.error("Failed to create Shopify draft order:", err));
-
-    const lines = items.map((i) => {
-      const opts = i.selectedOptions.map((o) => `${o.name}: ${o.value}`).join(" · ");
-      const url = `${window.location.origin}/product/${i.product.node.handle}`;
-      return `• ${i.product.node.title}${opts ? ` · ${opts}` : ""} · Qty: ${i.quantity}\n  ${url}`;
-    });
-
-    const message = [
-      `Hi ${STORE_NAME}! New Order (pending confirmation)`,
-      "",
-      `👤 ${name.trim()}`,
-      `📞 ${phone.trim()}`,
-      `🚚 Delivery to: ${address.trim()}`,
-      "",
-      ...lines,
-      "",
-      `🚚 Delivery: ${isFreeDelivery ? "Free" : formatMoney(deliveryFee, currency)}`,
-      `Subtotal: ${formatMoney(subtotal, currency)}`,
-      discountPercent > 0 ? `🎉 Discount (${discountPercent}% off ${totalItems} items): -${formatMoney(discountAmount, currency)}` : "",
-      `🧾 Order Total: ${formatMoney(total, currency)}`,
-      notes.trim() ? `\n📝 Notes: ${notes.trim()}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
-    setIsConfirmOpen(false);
-    setIsOpen(false);
-  };
-
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -133,7 +46,7 @@ export function CartDrawer() {
       <SheetContent className="flex h-full w-[90%] flex-col sm:max-w-lg">
         <SheetHeader className="flex-shrink-0">
           <SheetTitle className="label-caps text-xl">Your cart ({totalItems})</SheetTitle>
-          <SheetDescription className="sr-only">Review your items and place your order on WhatsApp</SheetDescription>
+          <SheetDescription className="sr-only">Review your items and proceed to checkout</SheetDescription>
         </SheetHeader>
 
         <div className="flex min-h-0 flex-1 flex-col">
@@ -266,104 +179,21 @@ export function CartDrawer() {
                   <span className="text-xl font-bold">{formatMoney(total, currency)}</span>
                 </div>
 
-                <div className="space-y-2 pt-1">
-                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name * (letters only)" />
-                  <Input
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 8))}
-                    inputMode="numeric"
-                    placeholder="Phone (WhatsApp) * — 8 digits"
-                  />
-                  <Textarea
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Delivery address * (block, road, house, area)"
-                    rows={2}
-                  />
-                  <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes (optional)" rows={2} />
-                </div>
-
-                <Button onClick={handleWhatsAppOrder} size="lg" className="label-caps mb-4 w-full bg-accent text-accent-foreground hover:bg-accent/90">
-                  <MessageCircle className="mr-2 h-4 w-4" /> Place order & open WhatsApp
+                <Button
+                  asChild
+                  size="lg"
+                  className="label-caps mb-4 w-full bg-accent text-accent-foreground hover:bg-accent/90"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Link to="/checkout">
+                    Checkout <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
                 </Button>
               </div>
             </>
           )}
         </div>
-
-        <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
-          <DialogContent className="max-w-md border-border bg-card">
-            <DialogHeader>
-              <DialogTitle className="label-caps text-xl">تأكيد الطلب</DialogTitle>
-              <DialogDescription>راجع تفاصيل طلبك قبل الإرسال على واتساب</DialogDescription>
-            </DialogHeader>
-
-            <div className="max-h-[45vh] space-y-3 overflow-y-auto text-sm">
-              <div className="space-y-2">
-                {items.map((item) => (
-                  <div key={item.variantId} className="flex justify-between gap-3">
-                    <span className="min-w-0">
-                      <span className="font-semibold">{item.product.node.title}</span>
-                      {item.selectedOptions.length > 0 && (
-                        <span className="text-muted-foreground"> · {item.selectedOptions.map((o) => o.value).join(" · ")}</span>
-                      )}
-                      <span className="text-muted-foreground"> × {item.quantity}</span>
-                    </span>
-                    <span className="whitespace-nowrap font-semibold">
-                      {formatMoney(parseFloat(item.price.amount) * item.quantity, item.price.currencyCode)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="space-y-1 border-t border-border pt-3 text-muted-foreground">
-                {discountPercent > 0 && (
-                  <>
-                    <div className="flex justify-between">
-                      <span className="label-caps">Subtotal</span>
-                      <span className="font-semibold text-foreground">{formatMoney(subtotal, currency)}</span>
-                    </div>
-                    <div className="flex justify-between text-accent">
-                      <span className="label-caps">Discount ({discountPercent}%)</span>
-                      <span className="font-semibold">-{formatMoney(discountAmount, currency)}</span>
-                    </div>
-                  </>
-                )}
-                <div className="flex justify-between">
-                  <span className="label-caps">Delivery</span>
-                  <span className="font-semibold text-foreground">
-                    {isFreeDelivery ? "Free" : formatMoney(deliveryFee, currency)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="label-caps text-foreground">Total</span>
-                  <span className="text-xl font-bold text-foreground">{formatMoney(total, currency)}</span>
-                </div>
-              </div>
-
-              <div className="space-y-1 border-t border-border pt-3">
-                <p><span className="text-muted-foreground">الاسم: </span>{name.trim()}</p>
-                <p><span className="text-muted-foreground">الجوال: </span>{phone.trim()}</p>
-                <p><span className="text-muted-foreground">العنوان: </span>{address.trim()}</p>
-                {notes.trim() && <p><span className="text-muted-foreground">ملاحظات: </span>{notes.trim()}</p>}
-              </div>
-            </div>
-
-            <DialogFooter className="flex-row gap-2 sm:justify-end">
-              <Button variant="outline" className="label-caps flex-1 sm:flex-none" onClick={() => setIsConfirmOpen(false)}>
-                رجوع للتعديل
-              </Button>
-              <Button
-                className="label-caps flex-1 bg-accent text-accent-foreground hover:bg-accent/90 sm:flex-none"
-                onClick={sendWhatsAppOrder}
-              >
-                <MessageCircle className="mr-2 h-4 w-4" /> تأكيد وإرسال
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </SheetContent>
     </Sheet>
-
   );
 }
