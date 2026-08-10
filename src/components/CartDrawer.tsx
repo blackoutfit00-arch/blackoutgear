@@ -60,41 +60,43 @@ export function CartDrawer() {
           ) : (
             <>
               <div className="flex-shrink-0 px-4 pb-8 pt-1">
-                <p className="mb-5 text-center text-sm font-bold leading-snug text-foreground">{discountMessage}</p>
+                <p className="mb-6 text-center text-sm font-bold leading-snug text-foreground">{discountMessage}</p>
                 <div className="relative mx-5">
-                  <div className="h-2 w-full rounded-full bg-muted">
+                  <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
                     <div
-                      className="h-2 rounded-full bg-accent transition-all duration-300"
-                      style={{ width: `${progressPct}%` }}
+                      className="h-2.5 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${progressPct}%`,
+                        backgroundImage:
+                          "repeating-linear-gradient(45deg, hsl(var(--accent)) 0px, hsl(var(--accent)) 6px, hsl(var(--accent) / 0.55) 6px, hsl(var(--accent) / 0.55) 12px)",
+                      }}
                     />
                   </div>
+
+                  {/* Fixed tier labels */}
                   {[
-                    { pos: 50, label: "Free Delivery", reached: isFreeDelivery, icon: <Truck className="h-4 w-4" /> },
-                    { pos: 100, label: "15% Off", reached: progressPct >= 100, icon: <Percent className="h-4 w-4" /> },
+                    { pos: 50, label: "Free Delivery", reached: isFreeDelivery },
+                    { pos: 100, label: "15% Off", reached: progressPct >= 100 },
                   ].map((m) => (
-                    <div
+                    <span
                       key={m.label}
-                      className="absolute top-1/2 flex -translate-y-1/2 -translate-x-1/2 flex-col items-center gap-1.5"
+                      className={cn(
+                        "absolute top-full mt-2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium",
+                        m.reached ? "text-accent" : "text-muted-foreground",
+                      )}
                       style={{ left: `${m.pos}%` }}
                     >
-                      <div
-                        className={cn(
-                          "flex h-9 w-9 items-center justify-center rounded-full border-2 bg-background",
-                          m.reached ? "border-accent text-accent" : "border-border text-muted-foreground",
-                        )}
-                      >
-                        {m.icon}
-                      </div>
-                      <span
-                        className={cn(
-                          "absolute top-full mt-1 whitespace-nowrap text-[10px] font-medium",
-                          m.reached ? "text-accent" : "text-muted-foreground",
-                        )}
-                      >
-                        {m.label}
-                      </span>
-                    </div>
+                      {m.label}
+                    </span>
                   ))}
+
+                  {/* Single moving marker showing the next/current reward icon */}
+                  <div
+                    className="absolute top-1/2 flex h-9 w-9 -translate-y-1/2 -translate-x-1/2 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-md transition-all duration-300"
+                    style={{ left: `${progressPct}%` }}
+                  >
+                    {isFreeDelivery ? <Percent className="h-4 w-4" /> : <Truck className="h-4 w-4" />}
+                  </div>
                 </div>
               </div>
 
