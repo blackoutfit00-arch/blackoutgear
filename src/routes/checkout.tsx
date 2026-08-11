@@ -76,7 +76,7 @@ function CheckoutPage() {
       toast.error("Please agree to the Terms & Conditions");
       return;
     }
-    setIsConfirmOpen(true);
+    sendWhatsAppOrder();
   };
 
   const sendWhatsAppOrder = async () => {
