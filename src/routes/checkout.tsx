@@ -302,88 +302,15 @@ function CheckoutPage() {
         </div>
 
         <Button
-          onClick={handleWhatsAppOrder}
+          onClick={confirmOrder}
           size="lg"
-          className="label-caps h-14 w-full rounded-xl text-base bg-accent text-accent-foreground hover:bg-accent/90"
+          className="label-caps h-14 w-full rounded-xl text-base bg-primary text-primary-foreground hover:bg-primary/90"
         >
-          <MessageCircle className="mr-2 h-5 w-5" /> Place Order
+          Confirm Order
         </Button>
       </main>
 
       <SiteFooter />
-
-      <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
-        <DialogContent className="max-w-md border-border bg-card">
-          <DialogHeader>
-            <DialogTitle className="label-caps text-xl">Confirm Order</DialogTitle>
-            <DialogDescription>Review your order details before sending on WhatsApp</DialogDescription>
-          </DialogHeader>
-
-          <div className="max-h-[45vh] space-y-3 overflow-y-auto text-sm">
-            <div className="space-y-2">
-              {items.map((item) => (
-                <div key={item.variantId} className="flex justify-between gap-3">
-                  <span className="min-w-0">
-                    <span className="font-semibold">{item.product.node.title}</span>
-                    {item.selectedOptions.length > 0 && (
-                      <span className="text-muted-foreground"> · {item.selectedOptions.map((o) => o.value).join(" · ")}</span>
-                    )}
-                    <span className="text-muted-foreground"> × {item.quantity}</span>
-                  </span>
-                  <span className="whitespace-nowrap font-semibold">
-                    {formatMoney(parseFloat(item.price.amount) * item.quantity, item.price.currencyCode)}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div className="space-y-1 border-t border-border pt-3 text-muted-foreground">
-              {discountPercent > 0 && (
-                <>
-                  <div className="flex justify-between">
-                    <span className="label-caps">Subtotal</span>
-                    <span className="font-semibold text-foreground">{formatMoney(subtotal, currency)}</span>
-                  </div>
-                  <div className="flex justify-between text-accent">
-                    <span className="label-caps">Discount ({discountPercent}%)</span>
-                    <span className="font-semibold">-{formatMoney(discountAmount, currency)}</span>
-                  </div>
-                </>
-              )}
-              <div className="flex justify-between">
-                <span className="label-caps">Delivery</span>
-                <span className="font-semibold text-foreground">
-                  {isFreeDelivery ? "Free" : formatMoney(deliveryFee, currency)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="label-caps text-foreground">Total</span>
-                <span className="text-xl font-bold text-foreground">{formatMoney(total, currency)}</span>
-              </div>
-            </div>
-
-            <div className="space-y-1 border-t border-border pt-3">
-              <p><span className="text-muted-foreground">Name: </span>{name.trim()}</p>
-              <p><span className="text-muted-foreground">Phone: </span>+973 {phone.trim()}</p>
-              <p><span className="text-muted-foreground">Address: </span>{fullAddress}</p>
-              <p><span className="text-muted-foreground">Payment: </span>BenefitPay</p>
-              {notes.trim() && <p><span className="text-muted-foreground">Notes: </span>{notes.trim()}</p>}
-            </div>
-          </div>
-
-          <DialogFooter className="flex-row gap-2 sm:justify-end">
-            <Button variant="outline" className="label-caps flex-1 sm:flex-none" onClick={() => setIsConfirmOpen(false)}>
-              Back to edit
-            </Button>
-            <Button
-              className="label-caps flex-1 bg-accent text-accent-foreground hover:bg-accent/90 sm:flex-none"
-              onClick={sendWhatsAppOrder}
-            >
-              <MessageCircle className="mr-2 h-4 w-4" /> Confirm & Send
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
