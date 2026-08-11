@@ -86,8 +86,6 @@ function ProductPage() {
     if (matched) {
       setSelections(next);
 
-      // If this variant has its own image in Shopify (e.g. assigned per color),
-      // jump the gallery to it — same behavior as Shopify's native variant swatches.
       if (matched.image?.url) {
         const matchedIndex = images.findIndex((img) => img.url === matched.image!.url);
         if (matchedIndex !== -1) {
@@ -191,7 +189,12 @@ function ProductPage() {
               </div>
             )}
 
-            <Button onClick={handleAdd} disabled={isLoading || !variant?.availableForSale} className="label-caps mt-8 w-full" size="lg">
+            <Button
+              onClick={handleAdd}
+              disabled={isLoading || !variant?.availableForSale}
+              className="label-caps mt-8 w-full !border-0 !bg-green-600 !text-white hover:!bg-green-700 disabled:!bg-green-600 disabled:!text-white disabled:opacity-60"
+              size="lg"
+            >
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : variant?.availableForSale ? "Add to cart" : "Sold out"}
             </Button>
 
