@@ -42,7 +42,7 @@ export function SiteFooter() {
                   rel="noreferrer"
                   className="text-sm text-foreground/90 hover:text-primary"
                 >
-                  WhatsApp ·&nbsp;
+                  WhatsApp · 35329797
                 </a>
               </li>
               <li>
