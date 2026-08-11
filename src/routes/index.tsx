@@ -69,26 +69,23 @@ function Index() {
       </section>
 
       <main className="mx-auto max-w-6xl px-4 py-12">
-        {/* Compact vertical category list: all sections remain visible without taking over the screen. */}
-        <nav className="mx-auto mb-8 flex w-full max-w-xl flex-col items-center gap-3" aria-label="Product categories">
-          {available.map((c) => (
-            <button
-              key={c.label}
-              onClick={() => setActive(c.label)}
-              className={cn(
-                "label-caps w-full max-w-md rounded-md border px-4 py-2.5 text-sm transition-colors sm:px-5 sm:py-3",
-                c.label === "Offers"
-                  ? active === c.label
-                    ? "border-destructive bg-destructive text-destructive-foreground"
-                    : "border-destructive/50 bg-destructive/15 text-destructive hover:bg-destructive/25"
-                  : active === c.label
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-secondary bg-secondary text-secondary-foreground hover:border-primary/60 hover:text-foreground",
-              )}
-            >
-              {c.label}
-            </button>
-          ))}
+        {/* Compact stacked layout matching the reference: small buttons, centered, with the selected category in light gray. */}
+        <nav className="mx-auto mb-8 flex w-full max-w-[660px] flex-col items-center gap-3" aria-label="Product categories">
+          <div className="flex w-full flex-wrap justify-center gap-3">
+            {available.slice(0, 3).map((c) => (
+              <CategoryButton key={c.label} category={c} active={active} setActive={setActive} />
+            ))}
+          </div>
+          <div className="flex w-full flex-wrap justify-center gap-3">
+            {available.slice(3, 6).map((c) => (
+              <CategoryButton key={c.label} category={c} active={active} setActive={setActive} />
+            ))}
+          </div>
+          <div className="flex w-full flex-wrap justify-center gap-3">
+            {available.slice(6).map((c) => (
+              <CategoryButton key={c.label} category={c} active={active} setActive={setActive} />
+            ))}
+          </div>
         </nav>
 
         {q && q.trim() && <p className="mb-4 text-sm text-muted-foreground">Results for <span className="font-semibold text-foreground">"{q.trim()}"</span></p>}
@@ -108,5 +105,22 @@ function Index() {
 
       <SiteFooter />
     </div>
+  );
+}
+
+function CategoryButton({ category, active, setActive }: { category: (typeof CATEGORIES)[number]; active: string; setActive: (label: string) => void }) {
+  const isActive = active === category.label;
+  return (
+    <button
+      onClick={() => setActive(category.label)}
+      className={cn(
+        "label-caps rounded-sm border px-5 py-3 text-sm whitespace-nowrap transition-colors",
+        isActive
+          ? "border-white bg-white text-black"
+          : "border-neutral-700 bg-transparent text-neutral-300 hover:border-neutral-400 hover:text-white",
+      )}
+    >
+      {category.label}
+    </button>
   );
 }
