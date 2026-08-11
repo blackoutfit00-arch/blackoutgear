@@ -25,12 +25,21 @@ export type DraftOrderResult =
 let cachedToken: { accessToken: string; expiresAt: number } | null = null;
 
 async function getAdminAccessToken(): Promise<string | null> {
+  // Preferred: the Admin API token provisioned by the Shopify integration.
+  const directToken =
+    process.env["SHOPIFY_ACCESS_TOKEN"] ?? process.env["SHOPIFY_ADMIN_ACCESS_TOKEN"];
+  if (directToken) return directToken;
+
   if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) {
     return cachedToken.accessToken;
   }
 
   const clientId = process.env["SHOPIFY_APP_CLIENT_ID"];
   const clientSecret = process.env["SHOPIFY_APP_CLIENT_SECRET"];
+  if (!clientId || !clientSecret) {
+    console.error("[shopifyAdmin] No Shopify Admin credentials available.");
+    return null;
+
   if (!clientId || !clientSecret) {
     console.error("[shopifyAdmin] SHOPIFY_APP_CLIENT_ID / SHOPIFY_APP_CLIENT_SECRET are not set.");
     return null;
