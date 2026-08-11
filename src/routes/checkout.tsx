@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ShoppingBag, Minus, Plus, Trash2 } from "lucide-react";
+import { ShoppingBag, Minus, Plus, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatMoney } from "@/lib/shopify";
 import { createShopifyDraftOrder } from "@/lib/shopifyAdmin";
@@ -52,10 +52,12 @@ function CheckoutPage() {
   const [addressDetail, setAddressDetail] = useState("");
   const [notes, setNotes] = useState("");
   const [agreed, setAgreed] = useState(false);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   const fullAddress = `${region.trim()}${region.trim() && addressDetail.trim() ? ", " : ""}${addressDetail.trim()}`;
 
   const confirmOrder = () => {
+    if (isPlacingOrder) return;
     if (!/^[\p{L}\s'-]{2,}$/u.test(name.trim())) {
       toast.error("Please enter your name (letters only)");
       return;
@@ -80,7 +82,35 @@ function CheckoutPage() {
   };
 
   const sendWhatsAppOrder = async () => {
-    const orderNumber = generateOrderNumber();
+    setIsPlacingOrder(true);
+
+    const lineItems = items.map((i) => ({ variantId: i.variantId, quantity: i.quantity }));
+
+    // Create the Draft Order in Shopify Admin first and wait for it, so the
+    // reference number shown to the customer matches the real Shopify draft
+    // order name. If Shopify errors out (or the app isn't configured), we
+    // still fall back to a locally generated number rather than blocking
+    // the customer's checkout.
+    let orderNumber = generateOrderNumber();
+    try {
+      const result = await createShopifyDraftOrder({
+        data: {
+          name: name.trim(),
+          phone: phone.trim(),
+          address: fullAddress,
+          notes: notes.trim(),
+          lineItems,
+          discountPercent,
+        },
+      });
+      if (result.ok && result.orderName) {
+        orderNumber = result.orderName;
+      } else if (!result.ok) {
+        console.error("Shopify draft order not created:", result.error);
+      }
+    } catch (err) {
+      console.error("Failed to create Shopify draft order:", err);
+    }
 
     const order = {
       orderNumber,
@@ -105,24 +135,9 @@ function CheckoutPage() {
       })),
     };
 
-    const lineItems = items.map((i) => ({ variantId: i.variantId, quantity: i.quantity }));
-
     saveLastOrder(order);
-
-    // Send the order to Shopify Admin as a Draft Order so it shows up in the
-    // dashboard. Never blocks the customer flow if it fails.
-    createShopifyDraftOrder({
-      data: {
-        name: order.name,
-        phone: order.phone,
-        address: order.address,
-        notes: [`Website order #${orderNumber}`, order.notes].filter(Boolean).join(" — "),
-        lineItems,
-        discountPercent,
-      },
-    }).catch((err) => console.error("Failed to create Shopify draft order:", err));
-
     clearCart();
+    setIsPlacingOrder(false);
     navigate({ to: "/order-confirmed" });
   };
 
@@ -303,10 +318,11 @@ function CheckoutPage() {
 
         <Button
           onClick={confirmOrder}
+          disabled={isPlacingOrder}
           size="lg"
           className="label-caps h-14 w-full rounded-xl text-base bg-primary text-primary-foreground hover:bg-primary/90"
         >
-          Confirm Order
+          {isPlacingOrder ? <Loader2 className="h-5 w-5 animate-spin" /> : "Confirm Order"}
         </Button>
       </main>
 
