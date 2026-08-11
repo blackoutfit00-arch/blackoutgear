@@ -17,6 +17,6 @@ export const CATEGORIES: CategoryDef[] = [
   { label: "Offers", slug: "offers", match: isOnOffer },
   { label: "Pants", slug: "pants", match: (p) => /pant|sweat|sportssuit|jogger/.test(p.title.toLowerCase()) },
   { label: "Compression", slug: "compression", match: (p) => /compression/.test(p.title.toLowerCase()) },
-  { label: "Oversize", slug: "oversize", match: (p) => /oversize|oversized/.test(p.title.toLowerCase()) },
+  { label: "T-Shirt", slug: "t-shirts", match: (p) => /t-?shirt|\btees?\b/.test(p.title.toLowerCase()) && !/compression/.test(p.title.toLowerCase()) },
   { label: "Accessories", slug: "accessories", match: (p) => /strap|belt|glove|shaker|accessor/.test(p.title.toLowerCase()) },
 ];

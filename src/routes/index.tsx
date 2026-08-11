@@ -35,7 +35,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const HOME_SHELVES = ["Oversize", "Compression", "Pants", "Accessories"];
+const HOME_SHELVES = ["T-Shirt", "Compression", "Pants", "Accessories"];
 
 function Index() {
   const { q } = Route.useSearch();
