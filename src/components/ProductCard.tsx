@@ -51,7 +51,7 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
         </Link>
 
         {hasOptions ? (
-          <Button asChild variant="secondary" className="label-caps transition-colors hover:bg-green-600 hover:text-white">
+          <Button asChild className="label-caps border-0 bg-green-600 text-white transition-colors hover:bg-green-700">
             <Link to="/product/$handle" params={{ handle: node.handle }}>
               View product
             </Link>
@@ -60,7 +60,7 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
           <Button
             onClick={handleAdd}
             disabled={isLoading || !firstAvailable?.availableForSale}
-            className="label-caps transition-colors hover:bg-green-600 hover:text-white"
+            className="label-caps border-0 bg-green-600 text-white transition-colors hover:bg-green-700 disabled:bg-green-600 disabled:text-white disabled:opacity-60"
           >
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : firstAvailable?.availableForSale ? "Add to cart" : "Sold out"}
           </Button>
