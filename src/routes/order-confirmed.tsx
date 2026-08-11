@@ -26,30 +26,47 @@ export const Route = createFileRoute("/order-confirmed")({
 
 function buildWhatsAppMessage(order: LastOrder) {
   const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const lines = order.lines.map(
-    (l) =>
-      `• ${l.title}${l.options ? ` · ${l.options}` : ""} · Qty: ${l.quantity}\n  ${origin}/product/${l.handle}`,
-  );
+
+  const lines = order.lines.map((line, index) => {
+    const productUrl = origin ? `${origin}/product/${line.handle}` : "";
+    return [
+      `${index + 1}. ${line.title}`,
+      line.options ? `   Options: ${line.options}` : "",
+      `   Qty: ${line.quantity} | Price: ${formatMoney(line.lineTotal, order.currency)}`,
+      productUrl ? `   ${productUrl}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+  });
 
   return [
-    `Hi ${STORE_NAME}! New Order #${order.orderNumber}`,
+    `*${STORE_NAME.toUpperCase()}*`,
+    `Order #${order.orderNumber}`,
     "",
-    `👤 ${order.name}`,
-    `📞 +973 ${order.phone}`,
-    `🚚 Delivery to: ${order.address}`,
-    `💳 Payment: BenefitPay / Bank transfer`,
+    "CUSTOMER",
+    `Name: ${order.name}`,
+    `Phone: +973 ${order.phone}`,
     "",
+    "DELIVERY",
+    `Address: ${order.address}`,
+    "",
+    "PAYMENT",
+    "BenefitPay / Bank transfer",
+    "",
+    "ORDER ITEMS",
     ...lines,
     "",
-    `🚚 Delivery: ${order.isFreeDelivery ? "Free" : formatMoney(order.deliveryFee, order.currency)}`,
+    "ORDER SUMMARY",
     `Subtotal: ${formatMoney(order.subtotal, order.currency)}`,
+    `Delivery: ${order.isFreeDelivery ? "Free" : formatMoney(order.deliveryFee, order.currency)}`,
     order.discountPercent > 0
-      ? `🎉 Discount (${order.discountPercent}% off ${order.totalItems} items): -${formatMoney(order.discountAmount, order.currency)}`
+      ? `Discount (${order.discountPercent}%): -${formatMoney(order.discountAmount, order.currency)}`
       : "",
-    `🧾 Order Total: ${formatMoney(order.total, order.currency)}`,
-    order.notes ? `\n📝 Notes: ${order.notes}` : "",
+    `TOTAL: ${formatMoney(order.total, order.currency)}`,
+    order.notes ? `\nNotes: ${order.notes}` : "",
     "",
-    "📎 I'm attaching my transfer receipt to confirm the order.",
+    "I have attached my transfer receipt to confirm this order.",
+    "Thank you!",
   ]
     .filter(Boolean)
     .join("\n");
