@@ -55,7 +55,7 @@ function CheckoutPage() {
 
   const fullAddress = `${region.trim()}${region.trim() && addressDetail.trim() ? ", " : ""}${addressDetail.trim()}`;
 
-  const handleWhatsAppOrder = () => {
+  const confirmOrder = () => {
     if (!/^[\p{L}\s'-]{2,}$/u.test(name.trim())) {
       toast.error("Please enter your name (letters only)");
       return;
