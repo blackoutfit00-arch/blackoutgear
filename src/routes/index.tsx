@@ -20,16 +20,9 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Blackout Gear — Gym Apparel & Lifting Gear in Bahrain" },
-      {
-        name: "description",
-        content:
-          "Shop oversized tees, jerseys, compression tops and lifting straps. Order on WhatsApp with delivery across Bahrain.",
-      },
+      { name: "description", content: "Shop oversized tees, jerseys, compression tops and lifting straps. Order on WhatsApp with delivery across Bahrain." },
       { property: "og:title", content: "Blackout Gear — Gym Apparel & Lifting Gear in Bahrain" },
-      {
-        property: "og:description",
-        content: "Oversized tees, jerseys, compression tops and lifting straps. Order on WhatsApp, delivered in Bahrain.",
-      },
+      { property: "og:description", content: "Oversized tees, jerseys, compression tops and lifting straps. Order on WhatsApp, delivered in Bahrain." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -39,23 +32,16 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { category, q } = Route.useSearch();
-  const { data: products, isLoading, isError } = useQuery({
-    queryKey: ["products"],
-    queryFn: () => fetchProducts(50),
-  });
+  const { data: products, isLoading, isError } = useQuery({ queryKey: ["products"], queryFn: () => fetchProducts(50) });
   const [active, setActive] = useState(category && CATEGORIES.some((c) => c.label === category) ? category : "All");
 
   useEffect(() => {
-    if (category && CATEGORIES.some((c) => c.label === category)) {
-      setActive(category);
-    }
+    if (category && CATEGORIES.some((c) => c.label === category)) setActive(category);
   }, [category]);
 
   const available = useMemo(() => {
     if (!products) return CATEGORIES.slice(0, 1);
-    return CATEGORIES.filter(
-      (c) => c.label === "All" || products.some((p: ShopifyProduct) => c.match(p.node)),
-    );
+    return CATEGORIES.filter((c) => c.label === "All" || products.some((p: ShopifyProduct) => c.match(p.node)));
   }, [products]);
 
   const filtered = useMemo(() => {
@@ -73,10 +59,7 @@ function Index() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
 
-      <section
-        className="relative border-b border-border bg-cover bg-center"
-        style={{ backgroundImage: "url(/hero-gym.jpg)" }}
-      >
+      <section className="relative border-b border-border bg-cover bg-center" style={{ backgroundImage: "url(/hero-gym.jpg)" }}>
         <div className="absolute inset-0 bg-black/30" />
         <div className="relative mx-auto max-w-6xl px-4 py-20 text-center sm:py-28">
           <p className="label-caps text-xs text-primary">Bahrain</p>
@@ -86,14 +69,14 @@ function Index() {
       </section>
 
       <main className="mx-auto max-w-6xl px-4 py-12">
-        {/* Categories are stacked vertically so customers can see every section at once. */}
-        <nav className="mx-auto mb-8 flex max-w-3xl flex-col gap-3" aria-label="Product categories">
+        {/* Compact vertical category list: all sections remain visible without taking over the screen. */}
+        <nav className="mx-auto mb-8 flex w-full max-w-xl flex-col items-center gap-3" aria-label="Product categories">
           {available.map((c) => (
             <button
               key={c.label}
               onClick={() => setActive(c.label)}
               className={cn(
-                "label-caps w-full rounded-md border px-5 py-3 text-sm transition-colors",
+                "label-caps w-full max-w-md rounded-md border px-4 py-2.5 text-sm transition-colors sm:px-5 sm:py-3",
                 c.label === "Offers"
                   ? active === c.label
                     ? "border-destructive bg-destructive text-destructive-foreground"
@@ -108,23 +91,15 @@ function Index() {
           ))}
         </nav>
 
-        {q && q.trim() && (
-          <p className="mb-4 text-sm text-muted-foreground">
-            Results for <span className="font-semibold text-foreground">"{q.trim()}"</span>
-          </p>
-        )}
+        {q && q.trim() && <p className="mb-4 text-sm text-muted-foreground">Results for <span className="font-semibold text-foreground">"{q.trim()}"</span></p>}
 
         {isLoading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          </div>
+          <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
         ) : isError ? (
           <p className="py-20 text-center text-muted-foreground">Couldn't load products. Please try again.</p>
         ) : filtered.length > 0 ? (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {filtered.map((product) => (
-              <ProductCard key={product.node.id} product={product} />
-            ))}
+            {filtered.map((product) => <ProductCard key={product.node.id} product={product} />)}
           </div>
         ) : (
           <p className="py-20 text-center text-muted-foreground">No products found</p>
