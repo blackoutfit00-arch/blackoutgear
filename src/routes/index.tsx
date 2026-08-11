@@ -69,19 +69,19 @@ function Index() {
       </section>
 
       <main className="mx-auto max-w-6xl px-4 py-12">
-        {/* Compact stacked layout matching the reference: small buttons, centered, with the selected category in light gray. */}
-        <nav className="mx-auto mb-8 flex w-full max-w-[660px] flex-col items-center gap-3" aria-label="Product categories">
-          <div className="flex w-full flex-wrap justify-center gap-3">
+        {/* Compact category layout aligned to the left, matching the requested reference. */}
+        <nav className="mb-8 flex w-full max-w-[660px] flex-col items-start gap-2.5" aria-label="Product categories">
+          <div className="flex w-full flex-wrap justify-start gap-2.5">
             {available.slice(0, 3).map((c) => (
               <CategoryButton key={c.label} category={c} active={active} setActive={setActive} />
             ))}
           </div>
-          <div className="flex w-full flex-wrap justify-center gap-3">
+          <div className="flex w-full flex-wrap justify-start gap-2.5">
             {available.slice(3, 6).map((c) => (
               <CategoryButton key={c.label} category={c} active={active} setActive={setActive} />
             ))}
           </div>
-          <div className="flex w-full flex-wrap justify-center gap-3">
+          <div className="flex w-full flex-wrap justify-start gap-2.5">
             {available.slice(6).map((c) => (
               <CategoryButton key={c.label} category={c} active={active} setActive={setActive} />
             ))}
@@ -114,7 +114,7 @@ function CategoryButton({ category, active, setActive }: { category: (typeof CAT
     <button
       onClick={() => setActive(category.label)}
       className={cn(
-        "label-caps rounded-sm border px-5 py-3 text-sm whitespace-nowrap transition-colors",
+        "label-caps rounded-sm border px-4 py-2 text-xs whitespace-nowrap transition-colors",
         isActive
           ? "border-white bg-white text-black"
           : "border-neutral-700 bg-transparent text-neutral-300 hover:border-neutral-400 hover:text-white",
