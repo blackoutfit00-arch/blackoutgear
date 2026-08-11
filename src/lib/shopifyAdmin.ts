@@ -8,85 +8,153 @@ export interface ShopifyOrderPayload {
 }
 export type ShopifyOrderResult = { ok: true; orderName?: string } | { ok: false; error: string };
 
-let cachedToken: { accessToken: string; expiresAt: number } | null = null;
-
 async function getAdminAccessToken(): Promise<string | null> {
-  const directToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN?.trim() || process.env.SHOPIFY_ACCESS_TOKEN?.trim();
-  if (directToken) return directToken;
-  if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) return cachedToken.accessToken;
-
-  const clientId = process.env.SHOPIFY_APP_CLIENT_ID;
-  const clientSecret = process.env.SHOPIFY_APP_CLIENT_SECRET;
-  if (!clientId || !clientSecret) {
-    console.error("[shopifyAdmin] Missing SHOPIFY_ADMIN_ACCESS_TOKEN and Shopify app client credentials.");
-    return null;
-  }
-  try {
-    const res = await fetch(`https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/admin/oauth/access_token`, {
-      method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ grant_type: "client_credentials", client_id: clientId, client_secret: clientSecret }),
-    });
-    if (!res.ok) { console.error("[shopifyAdmin] Token error:", res.status, await res.text()); return null; }
-    const json = await res.json();
-    const accessToken = json?.access_token as string | undefined;
-    const expiresIn = (json?.expires_in as number | undefined) ?? 86400;
-    if (!accessToken) return null;
-    cachedToken = { accessToken, expiresAt: Date.now() + expiresIn * 1000 };
-    return accessToken;
-  } catch (err) { console.error("[shopifyAdmin] Token request failed:", err); return null; }
+  // This is the variable that must contain the Shopify Admin API access token in Vercel.
+  const token = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN?.trim() || process.env.SHOPIFY_ACCESS_TOKEN?.trim();
+  return token || null;
 }
 
-/** Creates a real Shopify Order, not a Draft Order. Payment remains PENDING for BenefitPay. */
+function orderNote(data: ShopifyOrderPayload) {
+  return [
+    `Customer: ${data.name}`,
+    `Phone: +973 ${data.phone}`,
+    `Delivery region: ${data.region}`,
+    `Delivery address: ${data.address}`,
+    data.notes ? `Notes: ${data.notes}` : null,
+    "Payment method: BenefitPay",
+    "Source: Website order",
+    data.discountPercent > 0 ? `Website discount: ${data.discountPercent}%` : null,
+  ].filter(Boolean).join("\n");
+}
+
+async function createWithGraphQL(token: string, data: ShopifyOrderPayload): Promise<ShopifyOrderResult> {
+  // Shopify documents orderCreate as requiring the write_orders scope and an offline Admin token.
+  const query = `mutation orderCreate($order: OrderCreateOrderInput!, $options: OrderCreateOptionsInput) {
+    orderCreate(order: $order, options: $options) {
+      order { id name displayFinancialStatus }
+      userErrors { field message }
+    }
+  }`;
+
+  const input: Record<string, unknown> = {
+    lineItems: data.lineItems.map((li) => ({ variantId: li.variantId, quantity: li.quantity })),
+    financialStatus: "PENDING",
+    phone: `+973${data.phone}`,
+    note: orderNote(data),
+    tags: ["Website", "BenefitPay", "Pending Payment"],
+    sourceName: "website",
+    shippingAddress: {
+      firstName: data.name,
+      address1: data.address,
+      city: data.region,
+      countryCode: "BH",
+      phone: `+973${data.phone}`,
+    },
+    billingAddress: {
+      firstName: data.name,
+      address1: data.address,
+      city: data.region,
+      countryCode: "BH",
+      phone: `+973${data.phone}`,
+    },
+  };
+
+  if (data.deliveryFee > 0) {
+    input.shippingLines = [{
+      title: "Delivery",
+      priceSet: { shopMoney: { amount: data.deliveryFee.toFixed(3), currencyCode: "BHD" } },
+    }];
+  }
+
+  const res = await fetch(`https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json", "X-Shopify-Access-Token": token },
+    body: JSON.stringify({ query, variables: { order: input, options: { inventoryBehaviour: "BYPASS", sendReceipt: false, sendFulfillmentReceipt: false } } }),
+  });
+
+  const json = await res.json().catch(() => null);
+  if (!res.ok) return { ok: false, error: `GraphQL HTTP ${res.status}: ${json?.errors?.[0]?.message || "Shopify rejected the request"}` };
+  if (json?.errors?.length) return { ok: false, error: json.errors.map((e: { message?: string }) => e.message).filter(Boolean).join("; ") };
+
+  const errors = json?.data?.orderCreate?.userErrors ?? [];
+  if (errors.length) {
+    return { ok: false, error: errors.map((e: { field?: string[]; message: string }) => `${e.field?.join(".") || "order"}: ${e.message}`).join("; ") };
+  }
+
+  const order = json?.data?.orderCreate?.order;
+  return order?.name ? { ok: true, orderName: order.name } : { ok: false, error: "Shopify returned no order." };
+}
+
+async function createWithRest(token: string, data: ShopifyOrderPayload): Promise<ShopifyOrderResult> {
+  // Fallback for stores/apps where the REST Admin Order endpoint is enabled.
+  // It creates a REAL order with pending financial status, never a draft.
+  const order: Record<string, unknown> = {
+    line_items: data.lineItems.map((li) => ({ variant_id: Number(li.variantId.split("/").pop()), quantity: li.quantity })),
+    financial_status: "pending",
+    phone: `+973${data.phone}`,
+    note: orderNote(data),
+    tags: "Website, BenefitPay, Pending Payment",
+    source_name: "website",
+    shipping_address: {
+      first_name: data.name,
+      address1: data.address,
+      city: data.region,
+      country_code: "BH",
+      phone: `+973${data.phone}`,
+    },
+    billing_address: {
+      first_name: data.name,
+      address1: data.address,
+      city: data.region,
+      country_code: "BH",
+      phone: `+973${data.phone}`,
+    },
+  };
+
+  if (data.deliveryFee > 0) {
+    order.shipping_lines = [{
+      title: "Delivery",
+      price: data.deliveryFee.toFixed(3),
+      code: "DELIVERY",
+      source: "Website",
+    }];
+  }
+
+  const res = await fetch(`https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/admin/api/${SHOPIFY_API_VERSION}/orders.json`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json", "X-Shopify-Access-Token": token },
+    body: JSON.stringify({ order }),
+  });
+  const json = await res.json().catch(() => null);
+  if (!res.ok) {
+    return { ok: false, error: `Shopify REST HTTP ${res.status}: ${json?.errors ? JSON.stringify(json.errors) : "Shopify rejected the order"}` };
+  }
+  const created = json?.order;
+  return created?.name ? { ok: true, orderName: created.name } : { ok: false, error: "Shopify REST returned no order." };
+}
+
+/** Creates a REAL Shopify Order (not a Draft Order), with BenefitPay left as pending payment. */
 export const createShopifyOrder = createServerFn({ method: "POST" })
   .validator((data: ShopifyOrderPayload) => data)
   .handler(async ({ data }): Promise<ShopifyOrderResult> => {
     const token = await getAdminAccessToken();
-    if (!token) return { ok: false, error: "Shopify token is missing on the server." };
-
-    const query = `mutation orderCreate($order: OrderCreateOrderInput!, $options: OrderCreateOptionsInput) {
-      orderCreate(order: $order, options: $options) {
-        order { id name displayFinancialStatus }
-        userErrors { field message }
-      }
-    }`;
-
-    const input: Record<string, unknown> = {
-      lineItems: data.lineItems.map((li) => ({ variantId: li.variantId, quantity: li.quantity })),
-      financialStatus: "PENDING",
-      phone: `+973${data.phone}`,
-      note: [
-        `Customer: ${data.name}`, `Phone: +973 ${data.phone}`, `Delivery region: ${data.region}`,
-        `Delivery address: ${data.address}`, data.notes ? `Notes: ${data.notes}` : null,
-        "Payment method: BenefitPay", "Source: Website order",
-        data.discountPercent > 0 ? `Website discount: ${data.discountPercent}%` : null,
-      ].filter(Boolean).join("\n"),
-      tags: ["Website", "BenefitPay", "Pending Payment"],
-      shippingAddress: { name: data.name, phone: `+973${data.phone}`, address1: data.address, city: data.region, countryCode: "BH" },
-      billingAddress: { name: data.name, phone: `+973${data.phone}`, address1: data.address, city: data.region, countryCode: "BH" },
-    };
-    if (data.deliveryFee > 0) input.shippingLines = [{ title: "Delivery", priceSet: { shopMoney: { amount: data.deliveryFee.toFixed(3), currencyCode: "BHD" } } }];
+    if (!token) return { ok: false, error: "SHOPIFY_ADMIN_ACCESS_TOKEN is missing in Vercel Production." };
 
     try {
-      const res = await fetch(`https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json", "X-Shopify-Access-Token": token },
-        body: JSON.stringify({ query, variables: { order: input, options: { inventoryBehaviour: "BYPASS", sendReceipt: false, sendFulfillmentReceipt: false } } }),
-      });
-      const json = await res.json();
-      if (!res.ok) { console.error("[shopifyAdmin] HTTP error:", res.status, json); return { ok: false, error: `Shopify API error (${res.status}).` }; }
-      if (json?.errors?.length) {
-        const message = json.errors.map((e: { message?: string }) => e.message).filter(Boolean).join("; ");
-        console.error("[shopifyAdmin] GraphQL errors:", json.errors);
-        return { ok: false, error: message || "Shopify GraphQL error." };
-      }
-      const userErrors = json?.data?.orderCreate?.userErrors ?? [];
-      if (userErrors.length) {
-        const message = userErrors.map((e: { field?: string[]; message: string }) => `${e.field?.join(".") || "order"}: ${e.message}`).join("; ");
-        console.error("[shopifyAdmin] orderCreate userErrors:", userErrors);
-        return { ok: false, error: message };
-      }
-      const order = json?.data?.orderCreate?.order;
-      if (!order?.name) { console.error("[shopifyAdmin] No order returned:", json); return { ok: false, error: "Shopify did not return an order." }; }
-      return { ok: true, orderName: order.name };
-    } catch (err) { console.error("[shopifyAdmin] orderCreate request failed:", err); return { ok: false, error: "Could not connect to Shopify." }; }
+      const graphqlResult = await createWithGraphQL(token, data);
+      if (graphqlResult.ok) return graphqlResult;
+
+      console.error("[shopifyAdmin] GraphQL orderCreate failed:", graphqlResult.error);
+
+      // Try REST as a compatibility fallback. This also gives a useful permission error
+      // if the token cannot create orders.
+      const restResult = await createWithRest(token, data);
+      if (restResult.ok) return restResult;
+
+      console.error("[shopifyAdmin] REST order creation failed:", restResult.error);
+      return { ok: false, error: `${graphqlResult.error} | REST fallback: ${restResult.error}` };
+    } catch (err) {
+      console.error("[shopifyAdmin] order creation failed:", err);
+      return { ok: false, error: "Could not connect to Shopify Admin API." };
+    }
   });
