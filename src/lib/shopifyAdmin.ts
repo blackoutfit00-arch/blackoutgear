@@ -39,11 +39,8 @@ async function getAdminAccessToken(): Promise<string | null> {
   if (!clientId || !clientSecret) {
     console.error("[shopifyAdmin] No Shopify Admin credentials available.");
     return null;
-
-  if (!clientId || !clientSecret) {
-    console.error("[shopifyAdmin] SHOPIFY_APP_CLIENT_ID / SHOPIFY_APP_CLIENT_SECRET are not set.");
-    return null;
   }
+
 
   try {
     const res = await fetch(`https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/admin/oauth/access_token`, {
