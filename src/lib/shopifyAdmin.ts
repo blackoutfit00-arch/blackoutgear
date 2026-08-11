@@ -19,28 +19,26 @@ export type DraftOrderResult =
   | { ok: true; orderName?: string }
   | { ok: false; error: string };
 
-// In-memory cache for the access token obtained via the Client Credentials
-// Grant, so we don't request a new one on every single order (tokens are
-// valid for ~24h). This is per server-process — fine for a low-traffic store.
 let cachedToken: { accessToken: string; expiresAt: number } | null = null;
 
 async function getAdminAccessToken(): Promise<string | null> {
-  // Preferred: the Admin API token provisioned by the Shopify integration.
+  // Vercel production variable: SHOPIFY_ADMIN_ACCESS_TOKEN.
+  // SHOPIFY_ACCESS_TOKEN remains supported for compatibility.
   const directToken =
-    process.env["SHOPIFY_ACCESS_TOKEN"] ?? process.env["SHOPIFY_ADMIN_ACCESS_TOKEN"];
+    process.env.SHOPIFY_ADMIN_ACCESS_TOKEN?.trim() || process.env.SHOPIFY_ACCESS_TOKEN?.trim();
+
   if (directToken) return directToken;
 
   if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) {
     return cachedToken.accessToken;
   }
 
-  const clientId = process.env["SHOPIFY_APP_CLIENT_ID"];
-  const clientSecret = process.env["SHOPIFY_APP_CLIENT_SECRET"];
+  const clientId = process.env.SHOPIFY_APP_CLIENT_ID;
+  const clientSecret = process.env.SHOPIFY_APP_CLIENT_SECRET;
   if (!clientId || !clientSecret) {
-    console.error("[shopifyAdmin] No Shopify Admin credentials available.");
+    console.error("[shopifyAdmin] Missing SHOPIFY_ADMIN_ACCESS_TOKEN and Shopify app client credentials.");
     return null;
   }
-
 
   try {
     const res = await fetch(`https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/admin/oauth/access_token`, {
@@ -54,15 +52,15 @@ async function getAdminAccessToken(): Promise<string | null> {
     });
 
     if (!res.ok) {
-      console.error("[shopifyAdmin] Failed to obtain access token:", res.status, await res.text());
+      console.error("[shopifyAdmin] Failed to obtain Admin API token:", res.status, await res.text());
       return null;
     }
 
     const json = await res.json();
     const accessToken = json?.access_token as string | undefined;
-    const expiresIn = (json?.expires_in as number | undefined) ?? 60 * 60 * 24; // default 24h
+    const expiresIn = (json?.expires_in as number | undefined) ?? 60 * 60 * 24;
     if (!accessToken) {
-      console.error("[shopifyAdmin] Token response missing access_token:", json);
+      console.error("[shopifyAdmin] Token response did not contain access_token.");
       return null;
     }
 
@@ -75,22 +73,14 @@ async function getAdminAccessToken(): Promise<string | null> {
 }
 
 /**
- * Creates a Draft Order in Shopify Admin whenever a customer places an order
- * on the site. This does NOT charge or confirm anything automatically — it
- * just makes the order visible in Shopify Admin so it can be reviewed and
- * confirmed manually (same order details also go out over WhatsApp).
- *
- * Uses the OAuth 2.0 Client Credentials Grant: exchanges SHOPIFY_APP_CLIENT_ID
- * + SHOPIFY_APP_CLIENT_SECRET (server env vars, never sent to the browser)
- * for a short-lived Admin API access token on demand.
+ * Creates a Shopify Draft Order when a customer confirms checkout.
+ * The order is left as a draft so payment can be confirmed manually via BenefitPay.
  */
 export const createShopifyDraftOrder = createServerFn({ method: "POST" })
   .validator((data: DraftOrderPayload) => data)
   .handler(async ({ data }): Promise<DraftOrderResult> => {
     const token = await getAdminAccessToken();
-    if (!token) {
-      return { ok: false, error: "missing_token" };
-    }
+    if (!token) return { ok: false, error: "missing_admin_token" };
 
     const query = `
       mutation draftOrderCreate($input: DraftOrderInput!) {
@@ -103,23 +93,30 @@ export const createShopifyDraftOrder = createServerFn({ method: "POST" })
 
     const totalItems = data.lineItems.reduce((sum, li) => sum + li.quantity, 0);
 
-    const noteLines = [
-      `Customer: ${data.name}`,
-      `Phone: ${data.phone}`,
-      `Delivery address: ${data.address}`,
-      data.notes ? `Notes: ${data.notes}` : null,
-      "Source: Website order (pending confirmation via WhatsApp)",
-    ].filter(Boolean);
-
     const input: Record<string, unknown> = {
       lineItems: data.lineItems.map((li) => ({ variantId: li.variantId, quantity: li.quantity })),
-      note: noteLines.join("\n"),
-      tags: ["Website"],
+      note: [
+        `Customer: ${data.name}`,
+        `Phone: +973 ${data.phone}`,
+        `Delivery address: ${data.address}`,
+        data.notes ? `Notes: ${data.notes}` : null,
+        "Payment method: BenefitPay",
+        "Source: Website order (pending payment confirmation)",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+      tags: ["Website", "BenefitPay", "Pending Payment"],
+      shippingAddress: {
+        name: data.name,
+        phone: `+973${data.phone}`,
+        address1: data.address,
+        countryCode: "BH",
+      },
       useCustomerDefaultAddress: false,
     };
 
     if (data.discountPercent > 0) {
-      input["appliedDiscount"] = {
+      input.appliedDiscount = {
         valueType: "PERCENTAGE",
         value: data.discountPercent,
         title: `${data.discountPercent}% off (${totalItems} items)`,
@@ -133,6 +130,7 @@ export const createShopifyDraftOrder = createServerFn({ method: "POST" })
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Accept: "application/json",
             "X-Shopify-Access-Token": token,
           },
           body: JSON.stringify({ query, variables: { input } }),
@@ -141,18 +139,29 @@ export const createShopifyDraftOrder = createServerFn({ method: "POST" })
 
       const json = await res.json();
 
-      const userErrors = json?.data?.draftOrderCreate?.userErrors;
-      if (userErrors?.length) {
-        console.error("[shopifyAdmin] draftOrderCreate userErrors:", userErrors);
-        return { ok: false, error: "user_errors" };
+      if (!res.ok) {
+        console.error("[shopifyAdmin] Admin API HTTP error:", res.status, json);
+        return { ok: false, error: `http_${res.status}` };
       }
-      if (json.errors) {
-        console.error("[shopifyAdmin] draftOrderCreate GraphQL errors:", json.errors);
+
+      if (json?.errors?.length) {
+        console.error("[shopifyAdmin] GraphQL errors:", json.errors);
         return { ok: false, error: "graphql_errors" };
       }
 
+      const userErrors = json?.data?.draftOrderCreate?.userErrors;
+      if (userErrors?.length) {
+        console.error("[shopifyAdmin] draftOrderCreate userErrors:", userErrors);
+        return { ok: false, error: userErrors.map((e: { message: string }) => e.message).join("; ") };
+      }
+
       const draftOrder = json?.data?.draftOrderCreate?.draftOrder;
-      return { ok: true, orderName: draftOrder?.name };
+      if (!draftOrder?.name) {
+        console.error("[shopifyAdmin] Shopify returned no draft order:", json);
+        return { ok: false, error: "no_draft_order_returned" };
+      }
+
+      return { ok: true, orderName: draftOrder.name };
     } catch (err) {
       console.error("[shopifyAdmin] draftOrderCreate request failed:", err);
       return { ok: false, error: "request_failed" };
