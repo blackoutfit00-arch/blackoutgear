@@ -13,7 +13,7 @@ export function SearchButton() {
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
     setOpen(false);
-    navigate({ to: "/", search: { q: query.trim() || undefined, category: undefined } });
+    navigate({ to: "/", search: { q: query.trim() || undefined } });
   };
 
   return (

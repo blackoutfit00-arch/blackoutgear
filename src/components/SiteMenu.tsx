@@ -12,15 +12,19 @@ export function SiteMenu() {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
 
-  const goToCategory = (label: string) => {
+  const goToCategory = (category: (typeof CATEGORIES)[number]) => {
     setIsOpen(false);
-    navigate({ to: "/", search: { category: label, q: undefined } });
+    if (category.slug === "all") {
+      navigate({ to: "/", search: { q: undefined } });
+    } else {
+      navigate({ to: "/category/$slug", params: { slug: category.slug } });
+    }
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setIsOpen(false);
-    navigate({ to: "/", search: { q: query.trim() || undefined, category: undefined } });
+    navigate({ to: "/", search: { q: query.trim() || undefined } });
   };
 
   return (
@@ -55,7 +59,7 @@ export function SiteMenu() {
           {CATEGORIES.map((c) => (
             <button
               key={c.label}
-              onClick={() => goToCategory(c.label)}
+              onClick={() => goToCategory(c)}
               className="label-caps block w-full px-4 py-3.5 text-left text-sm tracking-wide text-foreground transition-colors hover:text-primary"
             >
               {c.label}
