@@ -86,13 +86,14 @@ function Index() {
       </section>
 
       <main className="mx-auto max-w-6xl px-4 py-12">
-        <nav className="-mx-4 mb-8 flex gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {/* Categories are stacked vertically so customers can see every section at once. */}
+        <nav className="mx-auto mb-8 flex max-w-3xl flex-col gap-3" aria-label="Product categories">
           {available.map((c) => (
             <button
               key={c.label}
               onClick={() => setActive(c.label)}
               className={cn(
-                "label-caps shrink-0 rounded-full border px-5 py-2.5 text-sm transition-colors",
+                "label-caps w-full rounded-md border px-5 py-3 text-sm transition-colors",
                 c.label === "Offers"
                   ? active === c.label
                     ? "border-destructive bg-destructive text-destructive-foreground"
@@ -129,7 +130,6 @@ function Index() {
           <p className="py-20 text-center text-muted-foreground">No products found</p>
         )}
       </main>
-
 
       <SiteFooter />
     </div>
