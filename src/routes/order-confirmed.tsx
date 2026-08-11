@@ -13,9 +13,9 @@ export const Route = createFileRoute("/order-confirmed")({
   head: () => ({
     meta: [
       { title: `Order Confirmed — ${STORE_NAME}` },
-      { name: "description", content: `Your order at ${STORE_NAME} has been placed. Transfer to our IBAN and send the receipt on WhatsApp to confirm.` },
+      { name: "description", content: `Your order at ${STORE_NAME} has been placed. Complete payment via BenefitPay and send the receipt on WhatsApp to confirm.` },
       { property: "og:title", content: `Order Confirmed — ${STORE_NAME}` },
-      { property: "og:description", content: "Your order has been placed. Send your transfer receipt on WhatsApp to confirm." },
+      { property: "og:description", content: "Your order has been placed. Complete payment via BenefitPay and send the receipt on WhatsApp to confirm." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
@@ -51,7 +51,7 @@ function buildWhatsAppMessage(order: LastOrder) {
     `Address: ${order.address}`,
     "",
     "PAYMENT",
-    "BenefitPay / Bank transfer",
+    "BenefitPay",
     "",
     "ORDER ITEMS",
     ...lines,
@@ -65,7 +65,7 @@ function buildWhatsAppMessage(order: LastOrder) {
     `TOTAL: ${formatMoney(order.total, order.currency)}`,
     order.notes ? `\nNotes: ${order.notes}` : "",
     "",
-    "I have attached my transfer receipt to confirm this order.",
+    "I have attached my BenefitPay receipt to confirm this order.",
     "Thank you!",
   ]
     .filter(Boolean)
@@ -84,7 +84,7 @@ function OrderConfirmedPage() {
     try {
       await navigator.clipboard.writeText(BANK_IBAN);
       setCopied(true);
-      toast.success("IBAN copied");
+      toast.success("BenefitPay details copied");
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error("Couldn't copy — please copy manually");
@@ -92,7 +92,7 @@ function OrderConfirmedPage() {
   };
 
   const sendWhatsApp = () => {
-    const text = order ? buildWhatsAppMessage(order) : `Hi ${STORE_NAME}! Here is my transfer receipt.`;
+    const text = order ? buildWhatsAppMessage(order) : `Hi ${STORE_NAME}! Here is my BenefitPay receipt.`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, "_blank");
   };
 
@@ -116,8 +116,8 @@ function OrderConfirmedPage() {
 
         <div className="space-y-4 rounded-xl border border-accent/40 bg-accent/10 p-4 text-left">
           <p className="text-sm leading-relaxed text-muted-foreground">
-            To confirm your order, transfer the amount to the IBAN below via BenefitPay, then send us a photo of the
-            transfer receipt on WhatsApp.
+            To confirm your order, complete the payment via BenefitPay using the details below, then send us a photo of
+            the BenefitPay receipt on WhatsApp.
           </p>
 
           {order && (
@@ -134,7 +134,7 @@ function OrderConfirmedPage() {
               <span className="ml-1">{copied ? "Copied" : "Copy"}</span>
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground">Account name: {BANK_ACCOUNT_NAME}</p>
+          <p className="text-xs text-muted-foreground">BenefitPay account name: {BANK_ACCOUNT_NAME}</p>
 
           <Button
             onClick={sendWhatsApp}
