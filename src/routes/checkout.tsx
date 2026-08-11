@@ -4,7 +4,6 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ShoppingBag, Minus, Plus, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -27,15 +26,22 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const { updateQuantity, removeItem, clearCart } = useCartStore();
   const { items, totalItems, currency, subtotal, discountPercent, discountAmount, isFreeDelivery, deliveryFee, total } = useCartTotals();
-  const [name, setName] = useState(""); const [phone, setPhone] = useState(""); const [region, setRegion] = useState(""); const [addressDetail, setAddressDetail] = useState(""); const [notes, setNotes] = useState(""); const [agreed, setAgreed] = useState(false); const [isPlacingOrder, setIsPlacingOrder] = useState(false);
-  const fullAddress = `${region.trim()}${region.trim() && addressDetail.trim() ? ", " : ""}${addressDetail.trim()}`;
+  const [name, setName] = useState(""); const [phone, setPhone] = useState(""); const [region, setRegion] = useState(""); const [block, setBlock] = useState(""); const [road, setRoad] = useState(""); const [houseNo, setHouseNo] = useState(""); const [agreed, setAgreed] = useState(false); const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const fullAddress = [block.trim() && `Block ${block.trim()}`, road.trim() && `Road ${road.trim()}`, houseNo.trim() && `House ${houseNo.trim()}`].filter(Boolean).join(", ");
+  const isNameValid = /^[\p{L}\s'-]{2,}$/u.test(name.trim());
+  const isPhoneValid = /^\d{8}$/.test(phone.trim());
+  const isRegionValid = region.trim().length >= 2;
+  const isAddressValid = block.trim().length > 0 && road.trim().length > 0 && houseNo.trim().length > 0;
+  const isFormComplete = isNameValid && isPhoneValid && isRegionValid && isAddressValid && agreed;
 
   const confirmOrder = () => {
     if (isPlacingOrder) return;
-    if (!/^[\p{L}\s'-]{2,}$/u.test(name.trim())) return void toast.error("Please enter your name (letters only)");
-    if (!/^\d{8}$/.test(phone.trim())) return void toast.error("Phone must be 8 digits");
-    if (region.trim().length < 2) return void toast.error("Please enter your region / governorate");
-    if (addressDetail.trim().length < 4) return void toast.error("Please enter your delivery address");
+    if (!isNameValid) return void toast.error("Please enter your name (letters only)");
+    if (!isPhoneValid) return void toast.error("Phone must be 8 digits");
+    if (!isRegionValid) return void toast.error("Please enter your region / governorate");
+    if (block.trim().length === 0) return void toast.error("Please enter your block number");
+    if (road.trim().length === 0) return void toast.error("Please enter your road number");
+    if (houseNo.trim().length === 0) return void toast.error("Please enter your house number");
     if (!agreed) return void toast.error("Please agree to the Terms & Conditions");
     placeShopifyOrder();
   };
@@ -44,7 +50,7 @@ function CheckoutPage() {
     setIsPlacingOrder(true);
     try {
       const result = await createShopifyOrder({ data: {
-        name: name.trim(), phone: phone.trim(), region: region.trim(), address: addressDetail.trim(), notes: notes.trim(),
+        name: name.trim(), phone: phone.trim(), region: region.trim(), address: fullAddress,
         lineItems: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })), discountPercent,
         deliveryFee: isFreeDelivery ? 0 : deliveryFee,
       }});
@@ -56,7 +62,7 @@ function CheckoutPage() {
         return;
       }
 
-      saveLastOrder({ orderNumber: result.orderName, name: name.trim(), phone: phone.trim(), address: fullAddress, notes: notes.trim(), currency, subtotal, discountPercent, discountAmount, isFreeDelivery, deliveryFee, total, totalItems,
+      saveLastOrder({ orderNumber: result.orderName, name: name.trim(), phone: phone.trim(), address: `${region.trim()}, ${fullAddress}`, currency, subtotal, discountPercent, discountAmount, isFreeDelivery, deliveryFee, total, totalItems,
         lines: items.map((i) => ({ title: i.product.node.title, options: i.selectedOptions.map((o) => `${o.name}: ${o.value}`).join(" · "), quantity: i.quantity, lineTotal: parseFloat(i.price.amount) * i.quantity, handle: i.product.node.handle })) });
       clearCart(); setIsPlacingOrder(false); navigate({ to: "/order-confirmed" });
     } catch (err) {
@@ -71,10 +77,10 @@ function CheckoutPage() {
   return <div className="flex min-h-screen flex-col bg-background text-foreground"><SiteHeader /><main className="mx-auto w-full max-w-2xl flex-1 space-y-4 px-4 py-8">
     <div><h1 className="label-caps text-2xl">Checkout</h1><p className="mt-1 text-sm text-muted-foreground">{STORE_TAGLINE}</p></div>
     <SectionCard title="Customer Info"><div className="space-y-3"><div><label className="mb-1.5 block text-sm text-muted-foreground">Name <span className="text-destructive">*</span></label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" /></div><div><label className="mb-1.5 block text-sm text-muted-foreground">Phone Number <span className="text-destructive">*</span></label><div className="flex gap-2"><span className="flex items-center rounded-md border border-border bg-muted px-3 text-sm text-muted-foreground">+973</span><Input value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 8))} inputMode="numeric" placeholder="XXXXXXXX" className="flex-1" /></div></div></div></SectionCard>
-    <SectionCard title="Delivery Address"><div className="space-y-3"><div><label className="mb-1.5 block text-sm text-muted-foreground">Region / Governorate <span className="text-destructive">*</span></label><Input value={region} onChange={(e) => setRegion(e.target.value)} placeholder="e.g. Manama, Riffa, Hamad Town" /></div><div><label className="mb-1.5 block text-sm text-muted-foreground">Delivery Address / House No. <span className="text-destructive">*</span></label><Input value={addressDetail} onChange={(e) => setAddressDetail(e.target.value)} placeholder="e.g. Block 1234, House 5" /></div><div><label className="mb-1.5 block text-sm text-muted-foreground">Order Notes (optional)</label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} placeholder="Any extra details..." /></div></div></SectionCard>
+    <SectionCard title="Delivery Address"><div className="space-y-3"><div><label className="mb-1.5 block text-sm text-muted-foreground">Region / Governorate <span className="text-destructive">*</span></label><Input value={region} onChange={(e) => setRegion(e.target.value)} placeholder="e.g. Manama, Riffa, Hamad Town" /></div><div className="grid grid-cols-3 gap-3"><div><label className="mb-1.5 block text-sm text-muted-foreground">Block <span className="text-destructive">*</span></label><Input value={block} onChange={(e) => setBlock(e.target.value)} placeholder="e.g. 305" /></div><div><label className="mb-1.5 block text-sm text-muted-foreground">Road <span className="text-destructive">*</span></label><Input value={road} onChange={(e) => setRoad(e.target.value)} placeholder="e.g. 2704" /></div><div><label className="mb-1.5 block text-sm text-muted-foreground">House No. <span className="text-destructive">*</span></label><Input value={houseNo} onChange={(e) => setHouseNo(e.target.value)} placeholder="e.g. 12" /></div></div></div></SectionCard>
     <SectionCard title="Payment Method"><div className="flex items-center gap-3 rounded-lg border-2 border-accent bg-accent/10 p-3"><BenefitPayBadge /><div><p className="text-sm font-semibold">BenefitPay</p><p className="text-xs text-muted-foreground">Payment details are shown after you confirm your order</p></div></div></SectionCard>
     <SectionCard title="Order Summary"><div className="space-y-3">{items.map((item) => <div key={item.variantId} className="flex gap-3 border-b border-border pb-3 last:border-0"><div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-muted">{(() => { const thumb = item.image ?? item.product.node.images?.edges?.[0]?.node; return thumb ? <img src={thumb.url} alt={item.product.node.title} className="h-full w-full object-cover" /> : null; })()}</div><div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-2"><div className="min-w-0"><h4 className="truncate text-sm font-semibold">{item.product.node.title}</h4><p className="label-caps text-[10px] text-muted-foreground">{item.selectedOptions.map((o) => o.value).join(" · ")}</p></div><Button variant="ghost" size="icon" className="h-6 w-6 flex-shrink-0 text-red-500 hover:bg-red-500/10 hover:text-red-500" onClick={() => removeItem(item.variantId)}><Trash2 className="h-3.5 w-3.5" /></Button></div><div className="mt-2 flex items-center justify-between"><div className="flex items-center gap-2"><Button variant="outline" size="icon" className="h-6 w-6 rounded-full" onClick={() => updateQuantity(item.variantId, item.quantity - 1)}><Minus className="h-2.5 w-2.5" /></Button><span className="w-5 text-center text-xs">{item.quantity}</span><Button variant="outline" size="icon" className="h-6 w-6 rounded-full" onClick={() => updateQuantity(item.variantId, item.quantity + 1)}><Plus className="h-2.5 w-2.5" /></Button></div><span className="text-sm font-bold">{formatMoney(parseFloat(item.price.amount) * item.quantity, item.price.currencyCode)}</span></div></div></div>)}<div className="space-y-2 border-t border-border pt-3">{discountPercent > 0 && <><div className="flex justify-between text-sm text-muted-foreground"><span className="label-caps">Subtotal</span><span className="font-semibold text-foreground">{formatMoney(subtotal, currency)}</span></div><div className="flex justify-between text-sm text-accent"><span className="label-caps">Discount ({discountPercent}%)</span><span className="font-semibold">-{formatMoney(discountAmount, currency)}</span></div></>}<div className="flex justify-between text-sm text-muted-foreground"><span className="label-caps">Delivery</span><span className="font-semibold text-foreground">{isFreeDelivery ? "Free" : formatMoney(deliveryFee, currency)}</span></div><div className="flex items-center justify-between border-t border-border pt-2"><span className="label-caps text-base">Total</span><span className="text-2xl font-bold">{formatMoney(total, currency)}</span></div></div></div></SectionCard>
     <div className="flex items-start gap-2"><Checkbox id="agree" checked={agreed} onCheckedChange={(v) => setAgreed(v === true)} className="mt-0.5" /><label htmlFor="agree" className="text-xs leading-relaxed text-muted-foreground">I agree to the <Link to="/returns" className="text-accent underline">Terms & Conditions</Link> and confirm my personal data will be used to process and deliver my order. Delivery takes 8–15 days from order confirmation.</label></div>
-    <Button onClick={confirmOrder} disabled={isPlacingOrder} size="lg" className="label-caps h-14 w-full rounded-xl text-base bg-primary text-primary-foreground hover:bg-primary/90">{isPlacingOrder ? <Loader2 className="h-5 w-5 animate-spin" /> : "Confirm Order"}</Button>
+    <Button onClick={confirmOrder} disabled={isPlacingOrder} size="lg" className={`label-caps h-14 w-full rounded-xl text-base transition-colors ${isFormComplete ? "bg-accent text-accent-foreground hover:bg-accent/90" : "bg-primary text-primary-foreground hover:bg-primary/90"}`}>{isPlacingOrder ? <Loader2 className="h-5 w-5 animate-spin" /> : "Confirm Order"}</Button>
   </main><SiteFooter /></div>;
 }

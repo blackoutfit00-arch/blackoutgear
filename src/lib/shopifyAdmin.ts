@@ -2,13 +2,13 @@ import { createServerFn } from "@tanstack/react-start";
 import { SHOPIFY_API_VERSION, SHOPIFY_STORE_PERMANENT_DOMAIN } from "@/lib/shopify";
 
 export interface OrderLineItem { variantId: string; quantity: number; }
-export interface ShopifyOrderPayload { name: string; phone: string; region: string; address: string; notes?: string; lineItems: OrderLineItem[]; discountPercent: number; deliveryFee: number; }
+export interface ShopifyOrderPayload { name: string; phone: string; region: string; address: string; lineItems: OrderLineItem[]; discountPercent: number; deliveryFee: number; }
 export type ShopifyOrderResult = { ok: true; orderName?: string } | { ok: false; error: string };
 
 const tokenFromEnv = () => process.env.SHOPIFY_ADMIN_ACCESS_TOKEN?.trim() || process.env.SHOPIFY_ACCESS_TOKEN?.trim() || null;
 
 function splitName(name: string) { const parts = name.trim().split(/\s+/); return { firstName: parts.shift() || "Customer", lastName: parts.join(" ") || "" }; }
-function orderNote(data: ShopifyOrderPayload) { return [`Customer: ${data.name}`, `Phone: +973 ${data.phone}`, `Delivery region: ${data.region}`, `Delivery address: ${data.address}`, data.notes ? `Notes: ${data.notes}` : null, "Payment method: BenefitPay", "Source: Website order", data.discountPercent > 0 ? `Website discount: ${data.discountPercent}%` : null].filter(Boolean).join("\n"); }
+function orderNote(data: ShopifyOrderPayload) { return [`Customer: ${data.name}`, `Phone: +973 ${data.phone}`, `Delivery region: ${data.region}`, `Delivery address: ${data.address}`, "Payment method: BenefitPay", "Source: Website order", data.discountPercent > 0 ? `Website discount: ${data.discountPercent}%` : null].filter(Boolean).join("\n"); }
 
 async function adminGraphQL(token: string, query: string, variables: Record<string, unknown>) {
   const res = await fetch(`https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json", "X-Shopify-Access-Token": token }, body: JSON.stringify({ query, variables }) });

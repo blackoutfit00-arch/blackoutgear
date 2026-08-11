@@ -63,7 +63,6 @@ function buildWhatsAppMessage(order: LastOrder) {
       ? `Discount (${order.discountPercent}%): -${formatMoney(order.discountAmount, order.currency)}`
       : "",
     `TOTAL: ${formatMoney(order.total, order.currency)}`,
-    order.notes ? `\nNotes: ${order.notes}` : "",
     "",
     "I have attached my BenefitPay receipt to confirm this order.",
     "Thank you!",
