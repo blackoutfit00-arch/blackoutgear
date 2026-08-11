@@ -1,28 +1,30 @@
 import { createServerFn } from "@tanstack/react-start";
 import { SHOPIFY_API_VERSION, SHOPIFY_STORE_PERMANENT_DOMAIN } from "@/lib/shopify";
 
-export interface DraftOrderLineItem {
+export interface OrderLineItem {
   variantId: string;
   quantity: number;
 }
 
-export interface DraftOrderPayload {
+export interface ShopifyOrderPayload {
   name: string;
   phone: string;
+  region: string;
   address: string;
   notes?: string;
-  lineItems: DraftOrderLineItem[];
+  lineItems: OrderLineItem[];
   discountPercent: number;
+  deliveryFee: number;
 }
 
-export type DraftOrderResult =
+export type ShopifyOrderResult =
   | { ok: true; orderName?: string }
   | { ok: false; error: string };
 
 let cachedToken: { accessToken: string; expiresAt: number } | null = null;
 
 async function getAdminAccessToken(): Promise<string | null> {
-  // Vercel production variable: SHOPIFY_ADMIN_ACCESS_TOKEN.
+  // Vercel Production variable: SHOPIFY_ADMIN_ACCESS_TOKEN.
   // SHOPIFY_ACCESS_TOKEN remains supported for compatibility.
   const directToken =
     process.env.SHOPIFY_ADMIN_ACCESS_TOKEN?.trim() || process.env.SHOPIFY_ACCESS_TOKEN?.trim();
@@ -73,54 +75,71 @@ async function getAdminAccessToken(): Promise<string | null> {
 }
 
 /**
- * Creates a Shopify Draft Order when a customer confirms checkout.
- * The order is left as a draft so payment can be confirmed manually via BenefitPay.
+ * Creates a real Shopify Order (not a Draft Order) when the customer confirms checkout.
+ * The order is created with financial status PENDING because payment is confirmed
+ * separately via BenefitPay.
  */
-export const createShopifyDraftOrder = createServerFn({ method: "POST" })
-  .validator((data: DraftOrderPayload) => data)
-  .handler(async ({ data }): Promise<DraftOrderResult> => {
+export const createShopifyOrder = createServerFn({ method: "POST" })
+  .validator((data: ShopifyOrderPayload) => data)
+  .handler(async ({ data }): Promise<ShopifyOrderResult> => {
     const token = await getAdminAccessToken();
     if (!token) return { ok: false, error: "missing_admin_token" };
 
     const query = `
-      mutation draftOrderCreate($input: DraftOrderInput!) {
-        draftOrderCreate(input: $input) {
-          draftOrder { id name invoiceUrl }
+      mutation orderCreate($order: OrderCreateOrderInput!, $options: OrderCreateOptionsInput) {
+        orderCreate(order: $order, options: $options) {
+          order { id name displayFinancialStatus }
           userErrors { field message }
         }
       }
     `;
 
-    const totalItems = data.lineItems.reduce((sum, li) => sum + li.quantity, 0);
-
     const input: Record<string, unknown> = {
       lineItems: data.lineItems.map((li) => ({ variantId: li.variantId, quantity: li.quantity })),
+      financialStatus: "PENDING",
+      phone: `+973${data.phone}`,
       note: [
         `Customer: ${data.name}`,
         `Phone: +973 ${data.phone}`,
+        `Delivery region: ${data.region}`,
         `Delivery address: ${data.address}`,
         data.notes ? `Notes: ${data.notes}` : null,
         "Payment method: BenefitPay",
-        "Source: Website order (pending payment confirmation)",
+        "Source: Website order",
+        data.discountPercent > 0 ? `Website discount: ${data.discountPercent}%` : null,
       ]
         .filter(Boolean)
         .join("\n"),
       tags: ["Website", "BenefitPay", "Pending Payment"],
+      sourceName: "website",
       shippingAddress: {
         name: data.name,
         phone: `+973${data.phone}`,
         address1: data.address,
+        city: data.region,
         countryCode: "BH",
       },
-      useCustomerDefaultAddress: false,
+      billingAddress: {
+        name: data.name,
+        phone: `+973${data.phone}`,
+        address1: data.address,
+        city: data.region,
+        countryCode: "BH",
+      },
     };
 
-    if (data.discountPercent > 0) {
-      input.appliedDiscount = {
-        valueType: "PERCENTAGE",
-        value: data.discountPercent,
-        title: `${data.discountPercent}% off (${totalItems} items)`,
-      };
+    if (data.deliveryFee > 0) {
+      input.shippingLines = [
+        {
+          title: "Delivery",
+          priceSet: {
+            shopMoney: {
+              amount: data.deliveryFee.toFixed(3),
+              currencyCode: "BHD",
+            },
+          },
+        },
+      ];
     }
 
     try {
@@ -133,7 +152,7 @@ export const createShopifyDraftOrder = createServerFn({ method: "POST" })
             Accept: "application/json",
             "X-Shopify-Access-Token": token,
           },
-          body: JSON.stringify({ query, variables: { input } }),
+          body: JSON.stringify({ query, variables: { order: input, options: { inventoryBehaviour: "BYPASS", sendReceipt: false, sendFulfillmentReceipt: false } } }),
         },
       );
 
@@ -149,21 +168,21 @@ export const createShopifyDraftOrder = createServerFn({ method: "POST" })
         return { ok: false, error: "graphql_errors" };
       }
 
-      const userErrors = json?.data?.draftOrderCreate?.userErrors;
+      const userErrors = json?.data?.orderCreate?.userErrors;
       if (userErrors?.length) {
-        console.error("[shopifyAdmin] draftOrderCreate userErrors:", userErrors);
+        console.error("[shopifyAdmin] orderCreate userErrors:", userErrors);
         return { ok: false, error: userErrors.map((e: { message: string }) => e.message).join("; ") };
       }
 
-      const draftOrder = json?.data?.draftOrderCreate?.draftOrder;
-      if (!draftOrder?.name) {
-        console.error("[shopifyAdmin] Shopify returned no draft order:", json);
-        return { ok: false, error: "no_draft_order_returned" };
+      const order = json?.data?.orderCreate?.order;
+      if (!order?.name) {
+        console.error("[shopifyAdmin] Shopify returned no order:", json);
+        return { ok: false, error: "no_order_returned" };
       }
 
-      return { ok: true, orderName: draftOrder.name };
+      return { ok: true, orderName: order.name };
     } catch (err) {
-      console.error("[shopifyAdmin] draftOrderCreate request failed:", err);
+      console.error("[shopifyAdmin] orderCreate request failed:", err);
       return { ok: false, error: "request_failed" };
     }
   });
