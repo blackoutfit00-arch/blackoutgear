@@ -46,7 +46,6 @@ function CheckoutPage() {
   const { items, totalItems, currency, subtotal, discountPercent, discountAmount, isFreeDelivery, deliveryFee, total } =
     useCartTotals();
 
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [region, setRegion] = useState("");
