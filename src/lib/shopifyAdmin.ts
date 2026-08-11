@@ -9,9 +9,12 @@ export interface ShopifyOrderPayload {
 export type ShopifyOrderResult = { ok: true; orderName?: string } | { ok: false; error: string };
 
 async function getAdminAccessToken(): Promise<string | null> {
-  // This is the variable that must contain the Shopify Admin API access token in Vercel.
-  const token = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN?.trim() || process.env.SHOPIFY_ACCESS_TOKEN?.trim();
-  return token || null;
+  return process.env.SHOPIFY_ADMIN_ACCESS_TOKEN?.trim() || process.env.SHOPIFY_ACCESS_TOKEN?.trim() || null;
+}
+
+function splitName(name: string) {
+  const parts = name.trim().split(/\s+/);
+  return { firstName: parts.shift() || "Customer", lastName: parts.join(" ") || "" };
 }
 
 function orderNote(data: ShopifyOrderPayload) {
@@ -28,30 +31,32 @@ function orderNote(data: ShopifyOrderPayload) {
 }
 
 async function createWithGraphQL(token: string, data: ShopifyOrderPayload): Promise<ShopifyOrderResult> {
-  // Shopify documents orderCreate as requiring the write_orders scope and an offline Admin token.
   const query = `mutation orderCreate($order: OrderCreateOrderInput!, $options: OrderCreateOptionsInput) {
     orderCreate(order: $order, options: $options) {
       order { id name displayFinancialStatus }
       userErrors { field message }
     }
   }`;
+  const person = splitName(data.name);
 
+  // Keep this payload to fields supported by Shopify's orderCreate mutation.
   const input: Record<string, unknown> = {
     lineItems: data.lineItems.map((li) => ({ variantId: li.variantId, quantity: li.quantity })),
     financialStatus: "PENDING",
     phone: `+973${data.phone}`,
     note: orderNote(data),
     tags: ["Website", "BenefitPay", "Pending Payment"],
-    sourceName: "website",
     shippingAddress: {
-      firstName: data.name,
+      firstName: person.firstName,
+      lastName: person.lastName,
       address1: data.address,
       city: data.region,
       countryCode: "BH",
       phone: `+973${data.phone}`,
     },
     billingAddress: {
-      firstName: data.name,
+      firstName: person.firstName,
+      lastName: person.lastName,
       address1: data.address,
       city: data.region,
       countryCode: "BH",
@@ -63,6 +68,8 @@ async function createWithGraphQL(token: string, data: ShopifyOrderPayload): Prom
     input.shippingLines = [{
       title: "Delivery",
       priceSet: { shopMoney: { amount: data.deliveryFee.toFixed(3), currencyCode: "BHD" } },
+      code: "DELIVERY",
+      source: "Website",
     }];
   }
 
@@ -71,8 +78,8 @@ async function createWithGraphQL(token: string, data: ShopifyOrderPayload): Prom
     headers: { "Content-Type": "application/json", Accept: "application/json", "X-Shopify-Access-Token": token },
     body: JSON.stringify({ query, variables: { order: input, options: { inventoryBehaviour: "BYPASS", sendReceipt: false, sendFulfillmentReceipt: false } } }),
   });
-
   const json = await res.json().catch(() => null);
+
   if (!res.ok) return { ok: false, error: `GraphQL HTTP ${res.status}: ${json?.errors?.[0]?.message || "Shopify rejected the request"}` };
   if (json?.errors?.length) return { ok: false, error: json.errors.map((e: { message?: string }) => e.message).filter(Boolean).join("; ") };
 
@@ -80,81 +87,19 @@ async function createWithGraphQL(token: string, data: ShopifyOrderPayload): Prom
   if (errors.length) {
     return { ok: false, error: errors.map((e: { field?: string[]; message: string }) => `${e.field?.join(".") || "order"}: ${e.message}`).join("; ") };
   }
-
   const order = json?.data?.orderCreate?.order;
   return order?.name ? { ok: true, orderName: order.name } : { ok: false, error: "Shopify returned no order." };
 }
 
-async function createWithRest(token: string, data: ShopifyOrderPayload): Promise<ShopifyOrderResult> {
-  // Fallback for stores/apps where the REST Admin Order endpoint is enabled.
-  // It creates a REAL order with pending financial status, never a draft.
-  const order: Record<string, unknown> = {
-    line_items: data.lineItems.map((li) => ({ variant_id: Number(li.variantId.split("/").pop()), quantity: li.quantity })),
-    financial_status: "pending",
-    phone: `+973${data.phone}`,
-    note: orderNote(data),
-    tags: "Website, BenefitPay, Pending Payment",
-    source_name: "website",
-    shipping_address: {
-      first_name: data.name,
-      address1: data.address,
-      city: data.region,
-      country_code: "BH",
-      phone: `+973${data.phone}`,
-    },
-    billing_address: {
-      first_name: data.name,
-      address1: data.address,
-      city: data.region,
-      country_code: "BH",
-      phone: `+973${data.phone}`,
-    },
-  };
-
-  if (data.deliveryFee > 0) {
-    order.shipping_lines = [{
-      title: "Delivery",
-      price: data.deliveryFee.toFixed(3),
-      code: "DELIVERY",
-      source: "Website",
-    }];
-  }
-
-  const res = await fetch(`https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/admin/api/${SHOPIFY_API_VERSION}/orders.json`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json", "X-Shopify-Access-Token": token },
-    body: JSON.stringify({ order }),
-  });
-  const json = await res.json().catch(() => null);
-  if (!res.ok) {
-    return { ok: false, error: `Shopify REST HTTP ${res.status}: ${json?.errors ? JSON.stringify(json.errors) : "Shopify rejected the order"}` };
-  }
-  const created = json?.order;
-  return created?.name ? { ok: true, orderName: created.name } : { ok: false, error: "Shopify REST returned no order." };
-}
-
-/** Creates a REAL Shopify Order (not a Draft Order), with BenefitPay left as pending payment. */
 export const createShopifyOrder = createServerFn({ method: "POST" })
   .validator((data: ShopifyOrderPayload) => data)
   .handler(async ({ data }): Promise<ShopifyOrderResult> => {
     const token = await getAdminAccessToken();
     if (!token) return { ok: false, error: "SHOPIFY_ADMIN_ACCESS_TOKEN is missing in Vercel Production." };
-
     try {
-      const graphqlResult = await createWithGraphQL(token, data);
-      if (graphqlResult.ok) return graphqlResult;
-
-      console.error("[shopifyAdmin] GraphQL orderCreate failed:", graphqlResult.error);
-
-      // Try REST as a compatibility fallback. This also gives a useful permission error
-      // if the token cannot create orders.
-      const restResult = await createWithRest(token, data);
-      if (restResult.ok) return restResult;
-
-      console.error("[shopifyAdmin] REST order creation failed:", restResult.error);
-      return { ok: false, error: `${graphqlResult.error} | REST fallback: ${restResult.error}` };
+      return await createWithGraphQL(token, data);
     } catch (err) {
-      console.error("[shopifyAdmin] order creation failed:", err);
+      console.error("[shopifyAdmin] orderCreate failed:", err);
       return { ok: false, error: "Could not connect to Shopify Admin API." };
     }
   });
