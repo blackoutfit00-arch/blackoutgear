@@ -108,7 +108,6 @@ function CheckoutPage() {
     const lineItems = items.map((i) => ({ variantId: i.variantId, quantity: i.quantity }));
 
     saveLastOrder(order);
-    setIsConfirmOpen(false);
 
     // Send the order to Shopify Admin as a Draft Order so it shows up in the
     // dashboard. Never blocks the customer flow if it fails.
