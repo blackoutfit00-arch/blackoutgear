@@ -1,17 +1,20 @@
 import { Link } from "@tanstack/react-router";
 import { CartDrawer } from "@/components/CartDrawer";
 import { SearchButton } from "@/components/SearchButton";
+import { SiteMenu } from "@/components/SiteMenu";
 import { STORE_NAME } from "@/config/store";
 
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <Link to="/" className="flex items-center gap-2.5">
+      <div className="mx-auto grid max-w-6xl grid-cols-3 items-center px-4 py-4">
+        <div className="flex items-center">
+          <SiteMenu />
+        </div>
+        <Link to="/" className="flex items-center justify-center">
           <img src="/bg-logo-header.png" alt={STORE_NAME} className="h-9 w-auto object-contain" />
-          {/* Store name removed per user request */}
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-end gap-2">
           <SearchButton />
           <CartDrawer />
         </div>

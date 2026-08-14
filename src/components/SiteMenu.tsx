@@ -14,11 +14,7 @@ export function SiteMenu() {
 
   const goToCategory = (category: (typeof CATEGORIES)[number]) => {
     setIsOpen(false);
-    if (category.slug === "all") {
-      navigate({ to: "/", search: { q: undefined } });
-    } else {
-      navigate({ to: "/category/$slug", params: { slug: category.slug } });
-    }
+    navigate({ to: "/category/$slug", params: { slug: category.slug } });
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -56,7 +52,20 @@ export function SiteMenu() {
         </form>
 
         <nav className="flex-1 overflow-y-auto px-2 py-2">
-          {CATEGORIES.map((c) => (
+          <button
+            onClick={() => { setIsOpen(false); navigate({ to: "/", search: { q: undefined } }); }}
+            className="label-caps block w-full px-4 py-3.5 text-left text-sm tracking-wide text-foreground transition-colors hover:text-primary"
+          >
+            Home
+          </button>
+          <button
+            onClick={() => goToCategory(CATEGORIES.find((c) => c.slug === "all")!)}
+            className="label-caps block w-full px-4 py-3.5 text-left text-sm tracking-wide text-foreground transition-colors hover:text-primary"
+          >
+            All Products
+          </button>
+          <div className="my-1 border-t border-border" />
+          {CATEGORIES.filter((c) => c.slug !== "all").map((c) => (
             <button
               key={c.label}
               onClick={() => goToCategory(c)}
