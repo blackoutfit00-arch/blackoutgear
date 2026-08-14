@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import { CartDrawer } from "@/components/CartDrawer";
-import { SearchButton } from "@/components/SearchButton";
 import { SiteMenu } from "@/components/SiteMenu";
 import { STORE_NAME } from "@/config/store";
 
@@ -15,7 +14,6 @@ export function SiteHeader() {
           <img src="/bg-logo-header.png" alt={STORE_NAME} className="h-9 w-auto object-contain" />
         </Link>
         <div className="flex items-center justify-end gap-2">
-          <SearchButton />
           <CartDrawer />
         </div>
       </div>
