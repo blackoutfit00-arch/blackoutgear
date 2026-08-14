@@ -24,13 +24,13 @@ export function SiteMenu() {
 
       <SheetContent
         side="left"
-        className="flex h-full w-full flex-col gap-0 border-none bg-white p-0 pt-6 text-black sm:max-w-sm [&>button]:hidden"
+        className="flex h-full w-1/2 flex-col gap-0 border-none bg-background p-0 pt-6 text-foreground sm:max-w-sm [&>button]:hidden"
       >
         <SheetTitle className="sr-only">Menu</SheetTitle>
         <SheetDescription className="sr-only">Browse categories</SheetDescription>
 
         <SheetClose asChild>
-          <button aria-label="Close menu" className="mb-4 ml-6 flex h-8 w-8 items-center justify-center text-black">
+          <button aria-label="Close menu" className="mb-4 ml-6 flex h-8 w-8 items-center justify-center text-foreground">
             <X className="h-7 w-7" strokeWidth={1.75} />
           </button>
         </SheetClose>
@@ -38,13 +38,13 @@ export function SiteMenu() {
         <nav className="flex-1 overflow-y-auto px-6">
           <button
             onClick={() => { setIsOpen(false); navigate({ to: "/", search: { q: undefined } }); }}
-            className="block w-full py-4 text-left text-3xl font-normal text-black transition-colors hover:text-neutral-500 sm:text-4xl"
+            className="block w-full py-4 text-left text-2xl font-normal text-foreground transition-colors hover:text-primary sm:text-3xl"
           >
             Home
           </button>
           <button
             onClick={() => goToCategory(CATEGORIES.find((c) => c.slug === "all")!)}
-            className="block w-full py-4 text-left text-3xl font-normal text-black transition-colors hover:text-neutral-500 sm:text-4xl"
+            className="block w-full py-4 text-left text-2xl font-normal text-foreground transition-colors hover:text-primary sm:text-3xl"
           >
             All Products
           </button>
@@ -52,7 +52,7 @@ export function SiteMenu() {
             <button
               key={c.label}
               onClick={() => goToCategory(c)}
-              className="block w-full py-4 text-left text-3xl font-normal text-black transition-colors hover:text-neutral-500 sm:text-4xl"
+              className="block w-full py-4 text-left text-2xl font-normal text-foreground transition-colors hover:text-primary sm:text-3xl"
             >
               {c.label}
             </button>
