@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Sheet, SheetContent, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
+import { X, Menu } from "lucide-react";
+import { Sheet, SheetContent, SheetTitle, SheetDescription, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
 import { CATEGORIES } from "@/config/categories";
 
 export function SiteMenu() {
@@ -22,20 +22,29 @@ export function SiteMenu() {
         </Button>
       </SheetTrigger>
 
-      <SheetContent side="left" className="flex h-full w-full flex-col gap-0 p-0 pt-10 sm:max-w-sm [&>button]:hidden">
+      <SheetContent
+        side="left"
+        className="flex h-full w-full flex-col gap-0 border-none bg-white p-0 pt-6 text-black sm:max-w-sm [&>button]:hidden"
+      >
         <SheetTitle className="sr-only">Menu</SheetTitle>
         <SheetDescription className="sr-only">Browse categories</SheetDescription>
 
-        <nav className="flex-1 overflow-y-auto px-4 py-2">
+        <SheetClose asChild>
+          <button aria-label="Close menu" className="mb-4 ml-6 flex h-8 w-8 items-center justify-center text-black">
+            <X className="h-7 w-7" strokeWidth={1.75} />
+          </button>
+        </SheetClose>
+
+        <nav className="flex-1 overflow-y-auto px-6">
           <button
             onClick={() => { setIsOpen(false); navigate({ to: "/", search: { q: undefined } }); }}
-            className="label-caps block w-full py-5 text-left text-2xl tracking-wide text-foreground transition-colors hover:text-primary sm:text-3xl"
+            className="block w-full py-4 text-left text-3xl font-normal text-black transition-colors hover:text-neutral-500 sm:text-4xl"
           >
             Home
           </button>
           <button
             onClick={() => goToCategory(CATEGORIES.find((c) => c.slug === "all")!)}
-            className="label-caps block w-full py-5 text-left text-2xl tracking-wide text-foreground transition-colors hover:text-primary sm:text-3xl"
+            className="block w-full py-4 text-left text-3xl font-normal text-black transition-colors hover:text-neutral-500 sm:text-4xl"
           >
             All Products
           </button>
@@ -43,7 +52,7 @@ export function SiteMenu() {
             <button
               key={c.label}
               onClick={() => goToCategory(c)}
-              className="label-caps block w-full py-5 text-left text-2xl tracking-wide text-foreground transition-colors hover:text-primary sm:text-3xl"
+              className="block w-full py-4 text-left text-3xl font-normal text-black transition-colors hover:text-neutral-500 sm:text-4xl"
             >
               {c.label}
             </button>
