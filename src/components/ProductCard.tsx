@@ -48,25 +48,52 @@ export function ProductCard({ product, compact = false }: { product: ShopifyProd
   }
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-md border border-border bg-card transition-colors hover:border-primary/60">
-      <Link to="/product/$handle" params={{ handle: node.handle }} className="block aspect-square overflow-hidden bg-muted">
+    <article className="group min-w-0">
+      <Link
+        to="/product/$handle"
+        params={{ handle: node.handle }}
+        className="block aspect-square overflow-hidden bg-muted"
+      >
         {image ? (
-          <img src={image.url} alt={image.altText ?? node.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <img
+            src={image.url}
+            alt={image.altText ?? node.title}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+          />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">No image</div>
         )}
       </Link>
-      <div className="flex flex-1 flex-col gap-3 p-4">
-        <Link to="/product/$handle" params={{ handle: node.handle }} className="flex-1">
-          <h3 className="text-lg leading-tight">{node.title}</h3>
-          <p className="mt-1 text-base font-semibold text-foreground">{formatMoney(price.amount, price.currencyCode)}</p>
-        </Link>
+
+      <div className="pt-5">
+        <div className="flex items-start justify-between gap-4">
+          <Link to="/product/$handle" params={{ handle: node.handle }} className="min-w-0">
+            <h3 className="truncate text-xl font-normal tracking-tight text-foreground sm:text-2xl">
+              {node.title}
+            </h3>
+          </Link>
+          <p className="shrink-0 text-lg font-medium text-foreground sm:text-xl">
+            {formatMoney(price.amount, price.currencyCode)}
+          </p>
+        </div>
+
+        <p className="mt-2 min-h-5 truncate text-xs uppercase tracking-[0.22em] text-muted-foreground">
+          {node.description?.replace(/<[^>]*>/g, " ").trim() || "Blackout Gear"}
+        </p>
+
         {hasOptions ? (
-          <Button asChild className="label-caps border-0 bg-white text-black transition-colors hover:bg-neutral-200">
-            <Link to="/product/$handle" params={{ handle: node.handle }}>View product</Link>
+          <Button asChild className="mt-5 h-14 w-full rounded-none border border-border bg-transparent text-foreground shadow-none transition-colors hover:bg-white hover:text-black">
+            <Link to="/product/$handle" params={{ handle: node.handle }} className="label-caps">
+              View product
+            </Link>
           </Button>
         ) : (
-          <Button onClick={handleAdd} disabled={isLoading || !firstAvailable?.availableForSale} className="label-caps border-0 bg-green-600 text-white transition-colors hover:bg-green-700 disabled:bg-green-600 disabled:text-white disabled:opacity-60">
+          <Button
+            onClick={handleAdd}
+            disabled={isLoading || !firstAvailable?.availableForSale}
+            className="mt-5 h-14 w-full rounded-none border-0 bg-green-600 text-white shadow-none transition-colors hover:bg-green-700 disabled:bg-green-600 disabled:text-white disabled:opacity-60"
+          >
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : firstAvailable?.availableForSale ? "Add to cart" : "Sold out"}
           </Button>
         )}
