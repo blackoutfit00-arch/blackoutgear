@@ -6,7 +6,7 @@ export const Route = createFileRoute("/returns")({
   head: () => ({
     meta: [
       { title: `الاسترجاع والاستبدال — ${STORE_NAME}` },
-      { name: "description", content: "سياسة الاسترجاع والاستبدال في متجر بلاك أوت جير." },
+      { name: "description", content: "سياسة الاسترجاع والاستبدال في متجر Vue." },
     ],
   }),
   component: ReturnsPage,

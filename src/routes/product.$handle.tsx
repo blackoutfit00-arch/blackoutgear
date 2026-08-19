@@ -18,9 +18,9 @@ export const Route = createFileRoute("/product/$handle")({
     const description = (loaderData?.product?.node.description ?? "").slice(0, 150) || "Sunglasses and eyewear delivered in Bahrain.";
     return {
       meta: [
-        { title: `${title} — Blackout Gear` },
+        { title: `${title} — Vue` },
         { name: "description", content: description },
-        { property: "og:title", content: `${title} — Blackout Gear` },
+        { property: "og:title", content: `${title} — Vue` },
         { property: "og:description", content: description },
         { property: "og:type", content: "product" },
         { name: "twitter:card", content: "summary_large_image" },

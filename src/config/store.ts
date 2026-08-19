@@ -1,4 +1,4 @@
-export const STORE_NAME = "Blackout Optics";
+export const STORE_NAME = "Vue";
 export const STORE_TAGLINE = "Premium eyewear & sunglasses";
 
 // WhatsApp business number in international format (digits only).

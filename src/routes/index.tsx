@@ -17,13 +17,13 @@ export const Route = createFileRoute("/")({
   }),
   head: () => ({
     meta: [
-      { title: "Blackout Optics — Sunglasses & Eyewear in Bahrain" },
+      { title: "Vue — Sunglasses & Eyewear in Bahrain" },
       {
         name: "description",
         content:
           "Shop sunglasses, optical frames and sports eyewear. Order on WhatsApp with delivery across Bahrain.",
       },
-      { property: "og:title", content: "Blackout Optics — Sunglasses & Eyewear in Bahrain" },
+      { property: "og:title", content: "Vue — Sunglasses & Eyewear in Bahrain" },
       {
         property: "og:description",
         content: "Sunglasses, optical frames and sports eyewear. Order on WhatsApp, delivered in Bahrain.",

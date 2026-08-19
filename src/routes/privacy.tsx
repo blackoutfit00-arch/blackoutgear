@@ -6,7 +6,7 @@ export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
       { title: `سياسة الخصوصية — ${STORE_NAME}` },
-      { name: "description", content: "كيف يجمع متجر بلاك أوت جير بياناتك ويستخدمها ويحميها." },
+      { name: "description", content: "كيف يجمع متجر Vue بياناتك ويستخدمها ويحميها." },
     ],
   }),
   component: PrivacyPage,
