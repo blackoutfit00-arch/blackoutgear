@@ -15,7 +15,7 @@ export const Route = createFileRoute("/product/$handle")({
   },
   head: ({ loaderData }) => {
     const title = loaderData?.product?.node.title ?? "Product";
-    const description = (loaderData?.product?.node.description ?? "").slice(0, 150) || "Gym apparel and lifting gear delivered in Bahrain.";
+    const description = (loaderData?.product?.node.description ?? "").slice(0, 150) || "Sunglasses and eyewear delivered in Bahrain.";
     return {
       meta: [
         { title: `${title} — Blackout Gear` },

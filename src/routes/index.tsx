@@ -17,16 +17,16 @@ export const Route = createFileRoute("/")({
   }),
   head: () => ({
     meta: [
-      { title: "Blackout Gear — Gym Apparel & Lifting Gear in Bahrain" },
+      { title: "Blackout Optics — Sunglasses & Eyewear in Bahrain" },
       {
         name: "description",
         content:
-          "Shop oversized tees, jerseys, compression tops and lifting straps. Order on WhatsApp with delivery across Bahrain.",
+          "Shop sunglasses, optical frames and sports eyewear. Order on WhatsApp with delivery across Bahrain.",
       },
-      { property: "og:title", content: "Blackout Gear — Gym Apparel & Lifting Gear in Bahrain" },
+      { property: "og:title", content: "Blackout Optics — Sunglasses & Eyewear in Bahrain" },
       {
         property: "og:description",
-        content: "Oversized tees, jerseys, compression tops and lifting straps. Order on WhatsApp, delivered in Bahrain.",
+        content: "Sunglasses, optical frames and sports eyewear. Order on WhatsApp, delivered in Bahrain.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -35,7 +35,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const HOME_SHELVES = ["T-Shirt", "Compression", "Pants", "Accessories"];
+const HOME_SHELVES = ["Sunglasses", "Optical Frames", "Sports Eyewear", "Accessories"];
 
 function Index() {
   const { q } = Route.useSearch();

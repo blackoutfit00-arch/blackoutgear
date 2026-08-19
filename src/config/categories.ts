@@ -15,8 +15,8 @@ function isOnOffer(product: ShopifyProduct["node"]): boolean {
 export const CATEGORIES: CategoryDef[] = [
   { label: "All", slug: "all", match: () => true },
   { label: "Offers", slug: "offers", match: isOnOffer },
-  { label: "Pants", slug: "pants", match: (p) => /pant|sweat|sportssuit|jogger/.test(p.title.toLowerCase()) },
-  { label: "Compression", slug: "compression", match: (p) => /compression/.test(p.title.toLowerCase()) },
-  { label: "T-Shirt", slug: "t-shirts", match: (p) => /t-?shirt|\btees?\b|jersey/.test(p.title.toLowerCase()) && !/compression/.test(p.title.toLowerCase()) },
-  { label: "Accessories", slug: "accessories", match: (p) => /strap|belt|glove|shaker|accessor/.test(p.title.toLowerCase()) },
+  { label: "Sunglasses", slug: "sunglasses", match: (p) => /sunglass|shades|polarized/.test(p.title.toLowerCase()) },
+  { label: "Optical Frames", slug: "optical-frames", match: (p) => /optical|eyeglass|frame|prescription/.test(p.title.toLowerCase()) },
+  { label: "Sports Eyewear", slug: "sports-eyewear", match: (p) => /sport|cycling|running|ski\b/.test(p.title.toLowerCase()) },
+  { label: "Accessories", slug: "accessories", match: (p) => /case|cloth|chain|strap|cleaner|accessor/.test(p.title.toLowerCase()) },
 ];
