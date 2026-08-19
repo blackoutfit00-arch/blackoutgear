@@ -11,7 +11,7 @@ export function SiteHeader() {
           <SiteMenu />
         </div>
         <Link to="/" className="flex items-center justify-center">
-          <img src="/bg-logo-header.png" alt={STORE_NAME} className="h-9 w-auto object-contain" />
+          <img src="/vue-logo.png" alt={STORE_NAME} className="h-9 w-auto object-contain" />
         </Link>
         <div className="flex items-center justify-end gap-2">
           <CartDrawer />

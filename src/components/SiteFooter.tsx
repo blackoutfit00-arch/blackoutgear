@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { STORE_NAME, WHATSAPP_NUMBER } from "@/config/store";
 
-const INSTAGRAM_HANDLE = "blackoutgear.bh";
+const INSTAGRAM_HANDLE = "VUE.BH";
 
 const CUSTOMER_CARE_LINKS = [
   { label: "FAQs", to: "/faq" as const },
@@ -14,7 +14,7 @@ export function SiteFooter() {
     <footer className="relative overflow-hidden border-t border-border bg-card">
       <div className="relative mx-auto max-w-6xl px-4 py-12">
         <div className="flex items-center gap-3">
-          <img src="/bg-logo.png" alt={STORE_NAME} className="h-7 w-auto object-contain" />
+          <img src="/vue-logo.png" alt={STORE_NAME} className="h-7 w-auto object-contain" />
           <p className="label-caps text-xs text-muted-foreground">Sports Online Store · Bahrain</p>
         </div>
 

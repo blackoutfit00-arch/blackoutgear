@@ -54,15 +54,11 @@ function Index() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
 
-      <section
-        className="relative border-b border-border bg-cover bg-center"
-        style={{ backgroundImage: "url(/hero-gym.jpg)" }}
-      >
-        <div className="absolute inset-0 bg-black/55" />
-        <div className="relative mx-auto max-w-6xl px-4 py-20 text-center sm:py-28">
-          <p className="label-caps text-xs text-primary drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">Bahrain</p>
-          <h1 className="mt-3 text-5xl text-white drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] sm:text-6xl">{STORE_NAME}</h1>
-          <p className="mx-auto mt-4 max-w-xl text-sm text-neutral-100 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] sm:text-base">{STORE_TAGLINE}</p>
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-6xl px-4 py-20 text-center sm:py-28">
+          <p className="label-caps text-xs text-primary">Bahrain</p>
+          <h1 className="mt-3 text-5xl text-foreground sm:text-6xl">{STORE_NAME}</h1>
+          <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground sm:text-base">{STORE_TAGLINE}</p>
         </div>
       </section>
 
