@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, ShoppingBag } from "lucide-react";
+import { Search } from "lucide-react";
 import { CartDrawer } from "@/components/CartDrawer";
 import { STORE_NAME } from "@/config/store";
 
@@ -24,17 +24,17 @@ export function SiteHeader() {
 
         <Link
           to="/"
-          className="justify-self-center flex items-center"
+          className="justify-self-center bg-transparent flex items-center"
           aria-label={STORE_NAME}
         >
           <img
             src="/vue-logo.png"
             alt={STORE_NAME}
-            className="h-9 w-auto object-contain sm:h-10"
+            className="h-9 w-auto bg-transparent object-contain sm:h-10"
           />
         </Link>
 
-        <div className="ml-auto flex items-center gap-4">
+        <div className="ml-auto flex items-center justify-end gap-4">
           <span className="hidden text-[11px] uppercase tracking-[0.12em] sm:inline">Account</span>
           <form onSubmit={handleSearch} className="hidden items-center gap-2 border-b border-[#f5efe2]/50 pb-1 sm:flex">
             <input
@@ -48,10 +48,7 @@ export function SiteHeader() {
               <Search className="h-4 w-4" strokeWidth={1.5} />
             </button>
           </form>
-          <div className="relative flex items-center">
-            <ShoppingBag className="pointer-events-none absolute left-0 h-4 w-4" strokeWidth={1.5} />
-            <CartDrawer />
-          </div>
+          <CartDrawer />
         </div>
       </div>
     </header>
