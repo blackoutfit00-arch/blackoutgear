@@ -15,15 +15,23 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-[#314969] bg-[#122b4b]/95 text-[#f5efe2] backdrop-blur">
-      <div className="mx-auto flex h-[72px] max-w-[1500px] items-center justify-between gap-6 px-5 sm:px-8">
+      <div className="mx-auto grid h-[72px] max-w-[1500px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-5 sm:px-8">
         <nav className="hidden items-center gap-7 text-[11px] font-medium uppercase tracking-[0.14em] lg:flex">
           <a href="#shop" className="transition-opacity hover:opacity-60">Collections</a>
           <a href="#shop" className="transition-opacity hover:opacity-60">Accessories</a>
           <a href="#shop" className="transition-opacity hover:opacity-60">New Arrivals</a>
         </nav>
 
-        <Link to="/" className="absolute left-1/2 -translate-x-1/2" aria-label={STORE_NAME}>
-          <img src="/vue-logo.png" alt={STORE_NAME} className="h-10 w-auto object-contain brightness-0 invert" />
+        <Link
+          to="/"
+          className="justify-self-center flex items-center"
+          aria-label={STORE_NAME}
+        >
+          <img
+            src="/vue-logo.png"
+            alt={STORE_NAME}
+            className="h-9 w-auto object-contain sm:h-10"
+          />
         </Link>
 
         <div className="ml-auto flex items-center gap-4">
