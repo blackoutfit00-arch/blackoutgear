@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useCartStore } from "@/stores/cartStore";
 import { formatMoney, type ShopifyProduct } from "@/lib/shopify";
+import { STORE_NAME } from "@/config/store";
 import { toast } from "sonner";
 
 export function ProductCard({ product, compact = false }: { product: ShopifyProduct; compact?: boolean }) {
@@ -78,7 +79,7 @@ export function ProductCard({ product, compact = false }: { product: ShopifyProd
         </div>
 
         <p className="mt-2 min-h-5 truncate text-xs uppercase tracking-[0.22em] text-[#122b4b]/50">
-          {node.description?.replace(/<[^>]*>/g, " ").trim() || "Blackout Gear"}
+          {node.description?.replace(/<[^>]*>/g, " ").trim() || STORE_NAME}
         </p>
 
         {hasOptions ? (

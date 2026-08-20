@@ -20,7 +20,7 @@ export const Route = createFileRoute("/category/$slug")({
     return {
       meta: [
         { title: `${label} — ${STORE_NAME}` },
-        { name: "description", content: `Shop all ${label} gear at ${STORE_NAME}. Delivered across Bahrain.` },
+        { name: "description", content: `Shop the ${label} collection at ${STORE_NAME}. Delivered across Bahrain.` },
         { property: "og:title", content: `${label} — ${STORE_NAME}` },
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },

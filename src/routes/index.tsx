@@ -15,8 +15,8 @@ export const Route = createFileRoute("/")({
   }),
   head: () => ({
     meta: [
-      { title: "Blackout Gear" },
-      { name: "description", content: "Premium sports eyewear & sunglasses in Bahrain." },
+      { title: "Vue" },
+      { name: "description", content: "Premium eyewear & sunglasses in Bahrain." },
     ],
   }),
   component: Index,
@@ -45,9 +45,9 @@ function Index() {
         <section className="relative overflow-hidden bg-[#f4efe5]">
           <div className="mx-auto grid min-h-[560px] max-w-[1500px] items-center gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[1fr_0.9fr] lg:py-20">
             <div className="max-w-xl">
-              <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#8b6b45]">Performance eyewear · Bahrain</p>
-              <h1 className="font-display text-5xl font-semibold leading-[0.95] tracking-tight sm:text-7xl">See the game.<br />Play it your way.</h1>
-              <p className="mt-7 max-w-md text-base leading-7 text-[#122b4b]/70 sm:text-lg">Premium eyewear made for movement, sunlight and everyday performance.</p>
+              <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#8b6b45]">Premium eyewear · Bahrain</p>
+              <h1 className="font-display text-5xl font-semibold leading-[0.95] tracking-tight sm:text-7xl">See the world,<br />your way.</h1>
+              <p className="mt-7 max-w-md text-base leading-7 text-[#122b4b]/70 sm:text-lg">Premium sunglasses and optical frames crafted for everyday clarity, comfort and effortless style.</p>
               <a href="#shop" className="mt-9 inline-flex items-center gap-3 bg-[#122b4b] px-7 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-[#f5efe2] transition-transform hover:-translate-y-0.5">Shop collection <ArrowRight className="h-4 w-4" /></a>
             </div>
             <div className="relative mx-auto w-full max-w-[600px]">
