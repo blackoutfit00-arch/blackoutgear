@@ -60,7 +60,8 @@ export function SiteFooter() {
         </div>
 
         <p className="mt-10 border-t border-border pt-6 text-xs italic text-muted-foreground">
-          {STORE_NAME.toUpperCase()} is an independent retailer. All trademarks belong to their respective owners.
+          {STORE_NAME.toUpperCase()} is an independent retailer. All trademarks belong to their
+          respective owners.
         </p>
       </div>
     </footer>

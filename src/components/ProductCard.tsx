@@ -5,7 +5,13 @@ import { formatMoney, type ShopifyProduct } from "@/lib/shopify";
 import { STORE_NAME } from "@/config/store";
 import { toast } from "sonner";
 
-export function ProductCard({ product, compact = false }: { product: ShopifyProduct; compact?: boolean }) {
+export function ProductCard({
+  product,
+  compact = false,
+}: {
+  product: ShopifyProduct;
+  compact?: boolean;
+}) {
   const addItem = useCartStore((s) => s.addItem);
   const isLoading = useCartStore((s) => s.isLoading);
 
@@ -32,16 +38,29 @@ export function ProductCard({ product, compact = false }: { product: ShopifyProd
   if (compact) {
     return (
       <article className="group w-[190px] shrink-0 sm:w-[210px] lg:w-[220px]">
-        <Link to="/product/$handle" params={{ handle: node.handle }} className="block overflow-hidden rounded-2xl bg-[#e9e1d0] aspect-square">
+        <Link
+          to="/product/$handle"
+          params={{ handle: node.handle }}
+          className="block overflow-hidden rounded-2xl bg-[#e9e1d0] aspect-square"
+        >
           {image ? (
-            <img src={image.url} alt={image.altText ?? node.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            <img
+              src={image.url}
+              alt={image.altText ?? node.title}
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-xs text-[#122b4b]/50">No image</div>
+            <div className="flex h-full w-full items-center justify-center text-xs text-[#122b4b]/50">
+              No image
+            </div>
           )}
         </Link>
         <Link to="/product/$handle" params={{ handle: node.handle }} className="block px-1 pt-3">
           <h3 className="truncate font-display text-sm italic text-[#122b4b]">{node.title}</h3>
-          <p className="mt-1 text-sm font-semibold text-[#122b4b]">{formatMoney(price.amount, price.currencyCode)}</p>
+          <p className="mt-1 text-sm font-semibold text-[#122b4b]">
+            {formatMoney(price.amount, price.currencyCode)}
+          </p>
         </Link>
       </article>
     );
@@ -62,7 +81,9 @@ export function ProductCard({ product, compact = false }: { product: ShopifyProd
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-xs text-[#122b4b]/50">No image</div>
+          <div className="flex h-full w-full items-center justify-center text-xs text-[#122b4b]/50">
+            No image
+          </div>
         )}
       </Link>
 
@@ -96,7 +117,13 @@ export function ProductCard({ product, compact = false }: { product: ShopifyProd
             disabled={isLoading || !firstAvailable?.availableForSale}
             className="mt-5 flex h-14 w-full items-center justify-center border border-[#122b4b] bg-transparent text-[11px] font-semibold uppercase tracking-[0.18em] text-[#122b4b] transition-colors hover:bg-[#122b4b] hover:text-[#f5efe2] disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-[#122b4b]"
           >
-            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : firstAvailable?.availableForSale ? "Add to Bag" : "Sold out"}
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : firstAvailable?.availableForSale ? (
+              "Add to Bag"
+            ) : (
+              "Sold out"
+            )}
           </button>
         )}
       </div>
