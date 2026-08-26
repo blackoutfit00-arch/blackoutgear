@@ -40,10 +40,14 @@ export function CartDrawer() {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="relative h-11 w-11">
-          <ShoppingBag className="h-6 w-6" />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative h-10 w-10 rounded-none border-0 bg-transparent p-0 text-[#f4eee3] shadow-none hover:bg-transparent hover:text-[#f4eee3] hover:opacity-60 sm:h-11 sm:w-11"
+        >
+          <ShoppingBag className="!h-8 !w-8 sm:!h-9 sm:!w-9" strokeWidth={1.35} />
           {totalItems > 0 && (
-            <Badge className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs">
+            <Badge className="absolute -top-1 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#4d9d62] p-0 text-xs text-white">
               {totalItems}
             </Badge>
           )}
