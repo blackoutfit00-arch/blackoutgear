@@ -20,7 +20,10 @@ export const Route = createFileRoute("/category/$slug")({
     return {
       meta: [
         { title: `${label} — ${STORE_NAME}` },
-        { name: "description", content: `Shop the ${label} collection at ${STORE_NAME}. Delivered across Bahrain.` },
+        {
+          name: "description",
+          content: `Shop the ${label} collection at ${STORE_NAME}. Delivered across Bahrain.`,
+        },
         { property: "og:title", content: `${label} — ${STORE_NAME}` },
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },
@@ -32,7 +35,11 @@ export const Route = createFileRoute("/category/$slug")({
 
 function CategoryPage() {
   const { category } = Route.useLoaderData();
-  const { data: products, isLoading, isError } = useQuery({
+  const {
+    data: products,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["products"],
     queryFn: () => fetchProducts(50),
   });
@@ -61,7 +68,9 @@ function CategoryPage() {
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : isError ? (
-          <p className="py-20 text-center text-muted-foreground">Couldn't load products. Please try again.</p>
+          <p className="py-20 text-center text-muted-foreground">
+            Couldn't load products. Please try again.
+          </p>
         ) : filtered.length > 0 ? (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {filtered.map((product) => (
@@ -69,7 +78,9 @@ function CategoryPage() {
             ))}
           </div>
         ) : (
-          <p className="py-20 text-center text-muted-foreground">No products found in this category yet.</p>
+          <p className="py-20 text-center text-muted-foreground">
+            No products found in this category yet.
+          </p>
         )}
       </main>
 

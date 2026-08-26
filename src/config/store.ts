@@ -10,4 +10,3 @@ export const DELIVERY_CURRENCY = "BHD";
 // Bank transfer details shown on the order confirmation page (BenefitPay / IBAN).
 export const BANK_IBAN = "BH70AUBB00055031803001";
 export const BANK_ACCOUNT_NAME = STORE_NAME;
-
