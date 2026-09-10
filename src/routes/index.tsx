@@ -70,24 +70,24 @@ function Index() {
                 alt="Premium eyewear campaign"
                 className="absolute inset-0 h-full w-full object-cover object-[62%_center]"
               />
-              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,19,17,0.72)_0%,rgba(20,19,17,0.42)_38%,rgba(20,19,17,0.06)_74%)]" />
-              <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/30 to-transparent" />
+              <div className="absolute inset-0 bg-[#3b3c39]" />
+              <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/40 to-transparent" />
 
               <div className="relative z-10 flex min-h-[680px] max-w-[560px] flex-col justify-center px-8 py-16 sm:min-h-[760px] sm:px-12 lg:min-h-[830px]">
                 <p className="mb-6 max-w-[260px] text-[14px] font-medium uppercase leading-[1.9] tracking-[0.48em] text-[#f4eee3]/90">
                   A clearer perspective
                 </p>
-                <h1 className="font-display text-[82px] font-semibold leading-[0.82] tracking-[-0.05em] text-[#f4eee3] sm:text-[118px]">
+                <h1 className="font-display text-[72px] font-semibold leading-[0.72] tracking-[-0.04em] text-[#f4eee3] sm:text-[104px]">
                   See
                   <br />
                   More
                 </h1>
-                <p className="mt-9 max-w-[330px] text-[13px] font-medium uppercase leading-[1.85] tracking-[0.44em] text-[#f4eee3]/90">
+                <p className="mt-6 max-w-[330px] text-[13px] font-medium uppercase leading-[1.85] tracking-[0.44em] text-[#f4eee3]/90">
                   Premium eyewear for a brighter you
                 </p>
                 <a
                   href="#shop"
-                  className="mt-10 inline-flex w-fit items-center gap-4 border border-[#f4eee3]/90 px-9 py-4 text-[18px] font-medium tracking-wide text-[#f4eee3] transition-colors hover:bg-[#f4eee3] hover:text-[#343532]"
+                  className="mt-8 inline-flex w-fit items-center gap-4 rounded-full border border-[#f4eee3]/90 px-6 py-3 text-[15px] font-medium tracking-wide text-[#f4eee3] transition-colors hover:bg-[#f4eee3] hover:text-[#343532]"
                 >
                   Shop all <ArrowRight className="h-6 w-6" strokeWidth={1.4} />
                 </a>
@@ -105,7 +105,7 @@ function Index() {
             </div>
           </section>
 
-          <section className="mx-auto max-w-[1500px] bg-[#eee9df] px-6 py-9 text-[#282824] sm:px-10">
+          <section className="mx-auto max-w-[1500px] bg-[#eee9df] px-6 py-9 text-[#f4eee3] sm:px-10">
             <div className="grid gap-8 sm:grid-cols-3 sm:divide-x sm:divide-[#cfc8bb]">
               {benefits.map((benefit) => {
                 const Icon = benefit.icon;
@@ -113,10 +113,10 @@ function Index() {
                   <div key={benefit.title} className="flex items-center justify-center gap-6 sm:px-6">
                     <Icon className="h-11 w-11 shrink-0" strokeWidth={1.45} />
                     <div>
-                      <h3 className="font-sans text-[12px] font-bold uppercase tracking-[0.32em] text-[#282824]">
+                      <h3 className="font-sans text-[12px] font-bold uppercase tracking-[0.32em] text-[#f4eee3]">
                         {benefit.title}
                       </h3>
-                      <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[#282824]/65">
+                      <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[#f4eee3]/65">
                         {benefit.subtitle}
                       </p>
                     </div>

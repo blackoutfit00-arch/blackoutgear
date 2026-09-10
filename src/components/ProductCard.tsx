@@ -20,7 +20,9 @@ export function ProductCard({
   const variants = node.variants.edges.map((e) => e.node);
   const firstAvailable = variants.find((v) => v.availableForSale) ?? variants[0];
   const price = node.priceRange.minVariantPrice;
+  const comparePrice = node.priceRange.compareAtPriceRange.minCompareAtPrice;
   const hasOptions = node.options.some((o) => o.values.length > 1);
+  const isBestSeller = node.tags?.includes?.("best seller") || node.title.includes("Best");
 
   const handleAdd = async () => {
     if (!firstAvailable) return;
@@ -73,9 +75,11 @@ export function ProductCard({
         params={{ handle: node.handle }}
         className="relative block aspect-square overflow-hidden rounded-[4px] bg-[#f5f3ef] shadow-[0_10px_26px_rgba(0,0,0,0.12)]"
       >
+        {isBestSeller && (
         <span className="absolute left-0 top-0 z-10 rounded-br-3xl bg-[#4d9d62] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white sm:px-5 sm:text-xs">
           Best seller
         </span>
+      )}
         {image ? (
           <img
             src={image.url}
@@ -98,7 +102,16 @@ export function ProductCard({
             </h3>
           </Link>
           <p className="shrink-0 text-lg font-medium text-[#f4eee3] sm:text-xl">
-            {formatMoney(price.amount, price.currencyCode)}
+            {comparePrice && price.amount < comparePrice.amount ? (
+              <>
+                <span className="line-through text-[#f4eee3]/60 text-xs mr-1">
+                  {formatMoney(comparePrice.amount, comparePrice.currencyCode)}
+                </span>
+                {formatMoney(price.amount, price.currencyCode)}
+              </>
+            ) : (
+              formatMoney(price.amount, price.currencyCode)
+            )}
           </p>
         </div>
 
