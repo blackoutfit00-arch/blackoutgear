@@ -13,16 +13,9 @@ export const Route = createFileRoute("/order-confirmed")({
   head: () => ({
     meta: [
       { title: `Order Confirmed — ${STORE_NAME}` },
-      {
-        name: "description",
-        content: `Your order at ${STORE_NAME} has been placed. Complete payment via BenefitPay and send the receipt on WhatsApp to confirm.`,
-      },
+      { name: "description", content: `Your order at ${STORE_NAME} has been placed. Complete payment via BenefitPay and send the receipt on WhatsApp to confirm.` },
       { property: "og:title", content: `Order Confirmed — ${STORE_NAME}` },
-      {
-        property: "og:description",
-        content:
-          "Your order has been placed. Complete payment via BenefitPay and send the receipt on WhatsApp to confirm.",
-      },
+      { property: "og:description", content: "Your order has been placed. Complete payment via BenefitPay and send the receipt on WhatsApp to confirm." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
@@ -98,9 +91,7 @@ function OrderConfirmedPage() {
   };
 
   const sendWhatsApp = () => {
-    const text = order
-      ? buildWhatsAppMessage(order)
-      : `Hi ${STORE_NAME}! Here is my BenefitPay receipt.`;
+    const text = order ? buildWhatsAppMessage(order) : `Hi ${STORE_NAME}! Here is my BenefitPay receipt.`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, "_blank");
   };
 
@@ -115,9 +106,7 @@ function OrderConfirmedPage() {
 
         <div>
           <h1 className="label-caps text-3xl">Order Confirmed!</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Thank you for your order. Your order number is:
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground">Thank you for your order. Your order number is:</p>
         </div>
 
         <div className="mx-auto w-40 rounded-xl border-2 border-border bg-card py-5">
@@ -126,8 +115,8 @@ function OrderConfirmedPage() {
 
         <div className="space-y-4 rounded-xl border border-accent/40 bg-accent/10 p-4 text-left">
           <p className="text-sm leading-relaxed text-muted-foreground">
-            To confirm your order, complete the payment via BenefitPay using the details below, then
-            send us a photo of the BenefitPay receipt on WhatsApp.
+            To confirm your order, complete the payment via BenefitPay using the details below, then send us a photo of
+            the BenefitPay receipt on WhatsApp.
           </p>
 
           {order && (
@@ -138,22 +127,13 @@ function OrderConfirmedPage() {
           )}
 
           <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
-            <span className="min-w-0 flex-1 truncate text-sm font-semibold tracking-wide">
-              {BANK_IBAN}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              className="label-caps h-8 flex-shrink-0"
-              onClick={copyIban}
-            >
+            <span className="min-w-0 flex-1 truncate text-sm font-semibold tracking-wide">{BANK_IBAN}</span>
+            <Button variant="outline" size="sm" className="label-caps h-8 flex-shrink-0" onClick={copyIban}>
               {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
               <span className="ml-1">{copied ? "Copied" : "Copy"}</span>
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground">
-            BenefitPay account name: {BANK_ACCOUNT_NAME}
-          </p>
+          <p className="text-xs text-muted-foreground">BenefitPay account name: {BANK_ACCOUNT_NAME}</p>
 
           <Button
             onClick={sendWhatsApp}

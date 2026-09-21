@@ -98,11 +98,7 @@ async function createShopifyCart(item: CartItem) {
   const lineId = cart.lines.edges[0]?.node?.id;
   if (!lineId) return null;
 
-  return {
-    cartId: cart.id as string,
-    checkoutUrl: formatCheckoutUrl(cart.checkoutUrl),
-    lineId: lineId as string,
-  };
+  return { cartId: cart.id as string, checkoutUrl: formatCheckoutUrl(cart.checkoutUrl), lineId: lineId as string };
 }
 
 async function addLineToShopifyCart(cartId: string, item: CartItem) {
@@ -120,17 +116,13 @@ async function addLineToShopifyCart(cartId: string, item: CartItem) {
 
   const lines = data?.data?.cartLinesAdd?.cart?.lines?.edges || [];
   const newLine = lines.find(
-    (l: { node: { id: string; merchandise: { id: string } } }) =>
-      l.node.merchandise.id === item.variantId,
+    (l: { node: { id: string; merchandise: { id: string } } }) => l.node.merchandise.id === item.variantId,
   );
   return { success: true, lineId: newLine?.node?.id as string | undefined };
 }
 
 async function updateShopifyCartLine(cartId: string, lineId: string, quantity: number) {
-  const data = await storefrontApiRequest(CART_LINES_UPDATE_MUTATION, {
-    cartId,
-    lines: [{ id: lineId, quantity }],
-  });
+  const data = await storefrontApiRequest(CART_LINES_UPDATE_MUTATION, { cartId, lines: [{ id: lineId, quantity }] });
   const userErrors: UserError[] = data?.data?.cartLinesUpdate?.userErrors || [];
   if (isCartNotFoundError(userErrors)) return { success: false, cartNotFound: true };
   if (userErrors.length > 0) {
@@ -141,10 +133,7 @@ async function updateShopifyCartLine(cartId: string, lineId: string, quantity: n
 }
 
 async function removeLineFromShopifyCart(cartId: string, lineId: string) {
-  const data = await storefrontApiRequest(CART_LINES_REMOVE_MUTATION, {
-    cartId,
-    lineIds: [lineId],
-  });
+  const data = await storefrontApiRequest(CART_LINES_REMOVE_MUTATION, { cartId, lineIds: [lineId] });
   const userErrors: UserError[] = data?.data?.cartLinesRemove?.userErrors || [];
   if (isCartNotFoundError(userErrors)) return { success: false, cartNotFound: true };
   if (userErrors.length > 0) {
@@ -237,9 +226,7 @@ export const useCartStore = create<CartStore>()(
           const result = await updateShopifyCartLine(cartId, item.lineId, quantity);
           if (result.success) {
             const currentItems = get().items;
-            set({
-              items: currentItems.map((i) => (i.variantId === variantId ? { ...i, quantity } : i)),
-            });
+            set({ items: currentItems.map((i) => (i.variantId === variantId ? { ...i, quantity } : i)) });
           } else if (result.cartNotFound) {
             clearCart();
           }
@@ -299,11 +286,7 @@ export const useCartStore = create<CartStore>()(
     {
       name: "shopify-cart",
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
-        items: state.items,
-        cartId: state.cartId,
-        checkoutUrl: state.checkoutUrl,
-      }),
+      partialize: (state) => ({ items: state.items, cartId: state.cartId, checkoutUrl: state.checkoutUrl }),
     },
   ),
 );

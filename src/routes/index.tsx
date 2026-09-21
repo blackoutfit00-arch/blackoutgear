@@ -1,31 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { ArrowRight, Loader2, MessageCircle, ShieldCheck, Truck } from "lucide-react";
+import { Loader2, ChevronRight } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ProductCard } from "@/components/ProductCard";
 import { fetchProducts, type ShopifyProduct } from "@/lib/shopify";
+import { STORE_NAME, STORE_TAGLINE } from "@/config/store";
+import { CATEGORIES } from "@/config/categories";
 
 type IndexSearch = { q?: string | undefined };
-
-const benefits = [
-  {
-    icon: Truck,
-    title: "Free shipping",
-    subtitle: "On all orders",
-  },
-  {
-    icon: ShieldCheck,
-    title: "1 year warranty",
-    subtitle: "Buy with confidence",
-  },
-  {
-    icon: MessageCircle,
-    title: "Try at home",
-    subtitle: "Love it or return",
-  },
-];
 
 export const Route = createFileRoute("/")({
   validateSearch: (search: Record<string, unknown>): IndexSearch => ({
@@ -33,136 +17,121 @@ export const Route = createFileRoute("/")({
   }),
   head: () => ({
     meta: [
-      { title: "Vue" },
-      { name: "description", content: "Premium eyewear & sunglasses in Bahrain." },
+      { title: "Blackout Gear — Gym Apparel & Lifting Gear in Bahrain" },
+      {
+        name: "description",
+        content:
+          "Shop oversized tees, jerseys, compression tops and lifting straps. Order on WhatsApp with delivery across Bahrain.",
+      },
+      { property: "og:title", content: "Blackout Gear — Gym Apparel & Lifting Gear in Bahrain" },
+      {
+        property: "og:description",
+        content: "Oversized tees, jerseys, compression tops and lifting straps. Order on WhatsApp, delivered in Bahrain.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
 });
 
+const HOME_SHELVES = ["T-Shirt", "Compression", "Pants", "Accessories"];
+
 function Index() {
   const { q } = Route.useSearch();
-  const {
-    data: products,
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: products, isLoading, isError } = useQuery({
     queryKey: ["products"],
     queryFn: () => fetchProducts(50),
   });
 
   const searchResults = useMemo(() => {
-    if (!products || !q || !q.trim()) return products ?? [];
+    if (!products || !q || !q.trim()) return [];
     const needle = q.trim().toLowerCase();
     return products.filter((p: ShopifyProduct) => p.node.title.toLowerCase().includes(needle));
   }, [products, q]);
 
   return (
-    <div className="min-h-screen bg-[#3b3c39] text-[#f4eee3]">
+    <div className="min-h-screen bg-background">
       <SiteHeader />
 
-      {!q?.trim() && (
-        <>
-          <section className="relative mx-auto max-w-[1500px] overflow-hidden bg-[#25231f]">
-            <div className="relative min-h-[680px] sm:min-h-[760px] lg:min-h-[830px]">
-              <img
-                src="/vue-hero-eyewear.jpg?v=2"
-                alt="Premium eyewear campaign"
-                className="absolute inset-0 h-full w-full object-cover object-[62%_center]"
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,19,17,0.72)_0%,rgba(20,19,17,0.42)_38%,rgba(20,19,17,0.06)_74%)]" />
-              <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/30 to-transparent" />
-
-              <div className="relative z-10 flex min-h-[680px] max-w-[560px] flex-col justify-center px-8 py-16 sm:min-h-[760px] sm:px-12 lg:min-h-[830px]">
-                <p className="mb-6 max-w-[260px] text-[14px] font-medium uppercase leading-[1.9] tracking-[0.48em] text-[#f4eee3]/90">
-                  A clearer perspective
-                </p>
-                <h1 className="font-display text-[82px] font-semibold leading-[0.82] tracking-[-0.05em] text-[#f4eee3] sm:text-[118px]">
-                  See
-                  <br />
-                  More
-                </h1>
-                <p className="mt-9 max-w-[330px] text-[13px] font-medium uppercase leading-[1.85] tracking-[0.44em] text-[#f4eee3]/90">
-                  Premium eyewear for a brighter you
-                </p>
-                <a
-                  href="#shop"
-                  className="mt-10 inline-flex w-fit items-center gap-4 border border-[#f4eee3]/90 px-9 py-4 text-[18px] font-medium tracking-wide text-[#f4eee3] transition-colors hover:bg-[#f4eee3] hover:text-[#343532]"
-                >
-                  Shop all <ArrowRight className="h-6 w-6" strokeWidth={1.4} />
-                </a>
-              </div>
-
-              <p className="absolute bottom-16 right-10 hidden max-w-[150px] rotate-[-8deg] font-['Caveat'] text-[42px] font-medium leading-[0.82] text-[#f4eee3] lg:block">
-                Good
-                <br />
-                Vision
-                <br />
-                Better
-                <br />
-                Days
-              </p>
-            </div>
-          </section>
-
-          <section className="mx-auto max-w-[1500px] bg-[#eee9df] px-6 py-9 text-[#282824] sm:px-10">
-            <div className="grid gap-8 sm:grid-cols-3 sm:divide-x sm:divide-[#cfc8bb]">
-              {benefits.map((benefit) => {
-                const Icon = benefit.icon;
-                return (
-                  <div key={benefit.title} className="flex items-center justify-center gap-6 sm:px-6">
-                    <Icon className="h-11 w-11 shrink-0" strokeWidth={1.45} />
-                    <div>
-                      <h3 className="font-sans text-[12px] font-bold uppercase tracking-[0.32em] text-[#282824]">
-                        {benefit.title}
-                      </h3>
-                      <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[#282824]/65">
-                        {benefit.subtitle}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        </>
-      )}
-
-      <main id="shop" className="mx-auto max-w-[1500px] bg-[#3d3e3b] px-7 py-14 sm:px-10 sm:py-20">
-        {q && q.trim() && (
-          <p className="mb-8 text-sm text-[#f4eee3]/70">
-            Results for <span className="font-semibold text-[#f4eee3]">&quot;{q.trim()}&quot;</span>
-          </p>
-        )}
-
-        <div className="mb-10 flex items-center justify-between gap-6 pb-2">
-          <h2 className="font-sans text-[34px] font-medium uppercase leading-none tracking-[0.18em] text-[#f4eee3] sm:text-[48px]">
-            {q?.trim() ? "Search results" : "Best seller"}
-          </h2>
-          <a
-            href="#shop"
-            className="hidden items-center gap-4 text-[13px] font-medium uppercase tracking-[0.28em] text-[#f4eee3]/90 transition-opacity hover:opacity-60 sm:flex"
-          >
-            View all <ArrowRight className="h-6 w-6" strokeWidth={1.4} />
-          </a>
+      <section
+        className="relative border-b border-border bg-cover bg-center"
+        style={{ backgroundImage: "url(/hero-gym.jpg)" }}
+      >
+        <div className="absolute inset-0 bg-black/55" />
+        <div className="relative mx-auto max-w-6xl px-4 py-20 text-center sm:py-28">
+          <p className="label-caps text-xs text-primary drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">Bahrain</p>
+          <h1 className="mt-3 text-5xl text-white drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] sm:text-6xl">{STORE_NAME}</h1>
+          <p className="mx-auto mt-4 max-w-xl text-sm text-neutral-100 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] sm:text-base">{STORE_TAGLINE}</p>
         </div>
+      </section>
 
-        {isLoading ? (
-          <div className="flex justify-center py-24">
-            <Loader2 className="h-6 w-6 animate-spin text-[#f4eee3]/60" />
+      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+        {q && q.trim() ? (
+          <>
+            <p className="mb-5 text-sm text-muted-foreground">
+              Results for <span className="font-semibold text-foreground">"{q.trim()}"</span>
+            </p>
+            {isLoading ? (
+              <div className="flex justify-center py-20">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : isError ? (
+              <p className="py-20 text-center text-muted-foreground">Couldn't load products. Please try again.</p>
+            ) : searchResults.length > 0 ? (
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                {searchResults.map((product) => (
+                  <ProductCard key={product.node.id} product={product} />
+                ))}
+              </div>
+            ) : (
+              <p className="py-20 text-center text-muted-foreground">No products found</p>
+            )}
+          </>
+        ) : isLoading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : isError ? (
-          <p className="py-24 text-center text-[#f4eee3]/70">
-            Couldn't load products. Please try again.
-          </p>
-        ) : searchResults.length > 0 ? (
-          <div className="grid grid-cols-2 gap-x-4 gap-y-12 sm:gap-x-6 lg:grid-cols-3 xl:grid-cols-4">
-            {searchResults.map((product) => (
-              <ProductCard key={product.node.id} product={product} />
-            ))}
-          </div>
+          <p className="py-20 text-center text-muted-foreground">Couldn't load products. Please try again.</p>
         ) : (
-          <p className="py-24 text-center text-[#f4eee3]/70">No products found</p>
+          <div className="space-y-12">
+            {HOME_SHELVES.map((label) => {
+              const category = CATEGORIES.find((c) => c.label === label);
+              if (!category) return null;
+              const shelfProducts = products?.filter((p: ShopifyProduct) => category.match(p.node)) ?? [];
+              if (shelfProducts.length === 0) return null;
+              return (
+                <section key={label} aria-labelledby={`shelf-${label}`}>
+                  <div className="mb-5 flex items-center justify-between">
+                    <Link
+                      id={`shelf-${label}`}
+                      to="/category/$slug"
+                      params={{ slug: category.slug }}
+                      className="group flex items-center gap-2 text-2xl font-medium text-foreground sm:text-3xl"
+                    >
+                      {label}
+                      <ChevronRight className="h-6 w-6 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                    <Link
+                      to="/category/$slug"
+                      params={{ slug: category.slug }}
+                      className="text-sm font-medium text-muted-foreground hover:text-foreground"
+                    >
+                      View all
+                    </Link>
+                  </div>
+                  <div className="-mx-1 flex gap-5 overflow-x-auto px-1 pb-3 snap-x snap-mandatory scrollbar-none">
+                    {shelfProducts.slice(0, 5).map((product) => (
+                      <div key={product.node.id} className="snap-start">
+                        <ProductCard product={product} compact />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
         )}
       </main>
 

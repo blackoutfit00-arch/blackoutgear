@@ -16,14 +16,7 @@ export function useCartTotals() {
   // Progress toward the two tiers: 2 items → free delivery, 3+ items → 15% off
   const TIER_2_POS = 50;
   const TIER_3_POS = 100;
-  const progressPct =
-    totalItems <= 0
-      ? 0
-      : totalItems === 1
-        ? TIER_2_POS / 2
-        : totalItems === 2
-          ? TIER_2_POS
-          : TIER_3_POS;
+  const progressPct = totalItems <= 0 ? 0 : totalItems === 1 ? TIER_2_POS / 2 : totalItems === 2 ? TIER_2_POS : TIER_3_POS;
   const discountMessage =
     discountPercent >= 15
       ? "🎉 15% OFF unlocked on your order!"

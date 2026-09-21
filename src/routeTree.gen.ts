@@ -15,7 +15,6 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as OrderConfirmedRouteImport } from './routes/order-confirmed'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ReturnsRouteImport } from './routes/returns'
-import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as ProductHandleRouteImport } from './routes/product.$handle'
 
 const IndexRoute = IndexRouteImport.update({
@@ -48,11 +47,6 @@ const ReturnsRoute = ReturnsRouteImport.update({
   path: '/returns',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CategorySlugRoute = CategorySlugRouteImport.update({
-  id: '/category/$slug',
-  path: '/category/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ProductHandleRoute = ProductHandleRouteImport.update({
   id: '/product/$handle',
   path: '/product/$handle',
@@ -66,7 +60,6 @@ export interface FileRoutesByFullPath {
   '/order-confirmed': typeof OrderConfirmedRoute
   '/privacy': typeof PrivacyRoute
   '/returns': typeof ReturnsRoute
-  '/category/$slug': typeof CategorySlugRoute
   '/product/$handle': typeof ProductHandleRoute
 }
 export interface FileRoutesByTo {
@@ -76,7 +69,6 @@ export interface FileRoutesByTo {
   '/order-confirmed': typeof OrderConfirmedRoute
   '/privacy': typeof PrivacyRoute
   '/returns': typeof ReturnsRoute
-  '/category/$slug': typeof CategorySlugRoute
   '/product/$handle': typeof ProductHandleRoute
 }
 export interface FileRoutesById {
@@ -87,7 +79,6 @@ export interface FileRoutesById {
   '/order-confirmed': typeof OrderConfirmedRoute
   '/privacy': typeof PrivacyRoute
   '/returns': typeof ReturnsRoute
-  '/category/$slug': typeof CategorySlugRoute
   '/product/$handle': typeof ProductHandleRoute
 }
 export interface FileRouteTypes {
@@ -99,7 +90,6 @@ export interface FileRouteTypes {
     | '/order-confirmed'
     | '/privacy'
     | '/returns'
-    | '/category/$slug'
     | '/product/$handle'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -109,7 +99,6 @@ export interface FileRouteTypes {
     | '/order-confirmed'
     | '/privacy'
     | '/returns'
-    | '/category/$slug'
     | '/product/$handle'
   id:
     | '__root__'
@@ -119,7 +108,6 @@ export interface FileRouteTypes {
     | '/order-confirmed'
     | '/privacy'
     | '/returns'
-    | '/category/$slug'
     | '/product/$handle'
   fileRoutesById: FileRoutesById
 }
@@ -130,7 +118,6 @@ export interface RootRouteChildren {
   OrderConfirmedRoute: typeof OrderConfirmedRoute
   PrivacyRoute: typeof PrivacyRoute
   ReturnsRoute: typeof ReturnsRoute
-  CategorySlugRoute: typeof CategorySlugRoute
   ProductHandleRoute: typeof ProductHandleRoute
 }
 
@@ -178,13 +165,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReturnsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/category/$slug': {
-      id: '/category/$slug'
-      path: '/category/$slug'
-      fullPath: '/category/$slug'
-      preLoaderRoute: typeof CategorySlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/product/$handle': {
       id: '/product/$handle'
       path: '/product/$handle'
@@ -202,19 +182,8 @@ const rootRouteChildren: RootRouteChildren = {
   OrderConfirmedRoute: OrderConfirmedRoute,
   PrivacyRoute: PrivacyRoute,
   ReturnsRoute: ReturnsRoute,
-  CategorySlugRoute: CategorySlugRoute,
   ProductHandleRoute: ProductHandleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

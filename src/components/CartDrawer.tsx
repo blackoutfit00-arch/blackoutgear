@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-  SheetDescription,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, Minus, Plus, Trash2, Percent, Truck, ArrowRight } from "lucide-react";
@@ -40,14 +33,10 @@ export function CartDrawer() {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative h-10 w-10 rounded-none border-0 bg-transparent p-0 text-[#f4eee3] shadow-none hover:bg-transparent hover:text-[#f4eee3] hover:opacity-60 sm:h-11 sm:w-11"
-        >
-          <ShoppingBag className="!h-8 !w-8 sm:!h-9 sm:!w-9" strokeWidth={1.35} />
+        <Button variant="outline" size="icon" className="relative h-11 w-11">
+          <ShoppingBag className="h-6 w-6" />
           {totalItems > 0 && (
-            <Badge className="absolute -top-1 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#4d9d62] p-0 text-xs text-white">
+            <Badge className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs">
               {totalItems}
             </Badge>
           )}
@@ -57,9 +46,7 @@ export function CartDrawer() {
       <SheetContent className="flex h-full w-[90%] flex-col sm:max-w-lg">
         <SheetHeader className="flex-shrink-0">
           <SheetTitle className="label-caps text-xl">Your cart ({totalItems})</SheetTitle>
-          <SheetDescription className="sr-only">
-            Review your items and proceed to checkout
-          </SheetDescription>
+          <SheetDescription className="sr-only">Review your items and proceed to checkout</SheetDescription>
         </SheetHeader>
 
         <div className="flex min-h-0 flex-1 flex-col">
@@ -80,8 +67,8 @@ export function CartDrawer() {
                     </>
                   ) : isFreeDelivery ? (
                     <>
-                      🎉 <span className="font-bold">Free Delivery</span> unlocked — add 1 more item
-                      for <span className="font-bold">15% OFF</span>!
+                      🎉 <span className="font-bold">Free Delivery</span> unlocked — add 1 more item for{" "}
+                      <span className="font-bold">15% OFF</span>!
                     </>
                   ) : totalItems === 1 ? (
                     <>
@@ -128,39 +115,26 @@ export function CartDrawer() {
                     className="absolute top-1/2 flex h-11 w-11 -translate-y-1/2 -translate-x-1/2 items-center justify-center rounded-full border-4 border-background bg-accent text-accent-foreground shadow-lg transition-all duration-300"
                     style={{ left: `${progressPct}%` }}
                   >
-                    {isFreeDelivery ? (
-                      <Percent className="h-5 w-5" />
-                    ) : (
-                      <Truck className="h-5 w-5" />
-                    )}
+                    {isFreeDelivery ? <Percent className="h-5 w-5" /> : <Truck className="h-5 w-5" />}
                   </div>
                 </div>
               </div>
 
               <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4">
                 {items.map((item) => (
-                  <div
-                    key={item.variantId}
-                    className="flex gap-3 border-b border-border pb-3 last:border-0"
-                  >
+                  <div key={item.variantId} className="flex gap-3 border-b border-border pb-3 last:border-0">
                     <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md bg-muted">
                       {(() => {
                         const thumb = item.image ?? item.product.node.images?.edges?.[0]?.node;
                         return thumb ? (
-                          <img
-                            src={thumb.url}
-                            alt={item.product.node.title}
-                            className="h-full w-full object-cover"
-                          />
+                          <img src={thumb.url} alt={item.product.node.title} className="h-full w-full object-cover" />
                         ) : null;
                       })()}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <h4 className="truncate text-sm font-semibold">
-                            {item.product.node.title}
-                          </h4>
+                          <h4 className="truncate text-sm font-semibold">{item.product.node.title}</h4>
                           <p className="label-caps text-[10px] text-muted-foreground">
                             {item.selectedOptions.map((o) => o.value).join(" · ")}
                           </p>
@@ -195,10 +169,7 @@ export function CartDrawer() {
                           </Button>
                         </div>
                         <span className="text-sm font-bold">
-                          {formatMoney(
-                            parseFloat(item.price.amount) * item.quantity,
-                            item.price.currencyCode,
-                          )}
+                          {formatMoney(parseFloat(item.price.amount) * item.quantity, item.price.currencyCode)}
                         </span>
                       </div>
                     </div>
@@ -211,15 +182,11 @@ export function CartDrawer() {
                   <>
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span className="label-caps">Subtotal</span>
-                      <span className="font-semibold text-foreground">
-                        {formatMoney(subtotal, currency)}
-                      </span>
+                      <span className="font-semibold text-foreground">{formatMoney(subtotal, currency)}</span>
                     </div>
                     <div className="flex justify-between text-xs text-accent">
                       <span className="label-caps">Discount ({discountPercent}%)</span>
-                      <span className="font-semibold">
-                        -{formatMoney(discountAmount, currency)}
-                      </span>
+                      <span className="font-semibold">-{formatMoney(discountAmount, currency)}</span>
                     </div>
                   </>
                 )}

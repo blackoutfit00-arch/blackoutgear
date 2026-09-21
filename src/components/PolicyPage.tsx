@@ -31,9 +31,7 @@ export function PolicyPage({
               <span className="label-caps inline-block rounded-md bg-foreground px-4 py-1.5 text-xs text-background">
                 {section.number}. {section.title}
               </span>
-              <div className="mt-3 space-y-2 text-sm leading-relaxed text-foreground/90">
-                {section.body}
-              </div>
+              <div className="mt-3 space-y-2 text-sm leading-relaxed text-foreground/90">{section.body}</div>
             </section>
           ))}
         </div>

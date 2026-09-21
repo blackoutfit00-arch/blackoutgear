@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { STORE_NAME, WHATSAPP_NUMBER } from "@/config/store";
 
-const INSTAGRAM_HANDLE = "VUE.BH";
+const INSTAGRAM_HANDLE = "blackoutgear.bh";
 
 const CUSTOMER_CARE_LINKS = [
   { label: "FAQs", to: "/faq" as const },
@@ -13,9 +13,9 @@ export function SiteFooter() {
   return (
     <footer className="relative overflow-hidden border-t border-border bg-card">
       <div className="relative mx-auto max-w-6xl px-4 py-12">
-        <div className="flex items-center gap-4">
-          <span className="font-display text-4xl leading-none tracking-[0.08em] text-[#f4eee3]">VUE</span>
-          <p className="label-caps text-xs text-muted-foreground">Eyewear & Sunglasses · Bahrain</p>
+        <div className="flex items-center gap-3">
+          <img src="/bg-logo.png" alt={STORE_NAME} className="h-7 w-auto object-contain" />
+          <p className="label-caps text-xs text-muted-foreground">Sports Online Store · Bahrain</p>
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-10 sm:grid-cols-2">
@@ -60,8 +60,7 @@ export function SiteFooter() {
         </div>
 
         <p className="mt-10 border-t border-border pt-6 text-xs italic text-muted-foreground">
-          {STORE_NAME.toUpperCase()} is an independent retailer. All trademarks belong to their
-          respective owners.
+          {STORE_NAME.toUpperCase()} is an independent retailer. All trademarks belong to their respective owners.
         </p>
       </div>
     </footer>

@@ -7,26 +7,11 @@ export const SHOPIFY_STOREFRONT_TOKEN = "b9759d7207807e17d9f0e0ffedb92923";
 
 export interface ShopifyProduct {
   node: {
-    id: string;
-    title: string;
-    description: string;
-    descriptionHtml: string;
-    handle: string;
+    id: string; title: string; description: string; descriptionHtml: string; handle: string;
     priceRange: { minVariantPrice: { amount: string; currencyCode: string } };
     compareAtPriceRange: { minVariantPrice: { amount: string; currencyCode: string } };
     images: { edges: Array<{ node: { url: string; altText: string | null } }> };
-    variants: {
-      edges: Array<{
-        node: {
-          id: string;
-          title: string;
-          price: { amount: string; currencyCode: string };
-          availableForSale: boolean;
-          selectedOptions: Array<{ name: string; value: string }>;
-          image: { url: string; altText: string | null } | null;
-        };
-      }>;
-    };
+    variants: { edges: Array<{ node: { id: string; title: string; price: { amount: string; currencyCode: string }; availableForSale: boolean; selectedOptions: Array<{ name: string; value: string }>; image: { url: string; altText: string | null } | null } }> };
     options: Array<{ name: string; values: string[] }>;
   };
 }
@@ -44,24 +29,11 @@ export const HOMEPAGE_COLLECTION_QUERY = `query GetHomepageCollection($first: In
 export const PRODUCT_BY_HANDLE_QUERY = `query GetProduct($handle: String!) { productByHandle(handle: $handle) { ${PRODUCT_FIELDS} } }`;
 
 export async function storefrontApiRequest(query: string, variables: Record<string, unknown> = {}) {
-  const response = await fetch(SHOPIFY_STOREFRONT_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Shopify-Storefront-Access-Token": SHOPIFY_STOREFRONT_TOKEN,
-    },
-    body: JSON.stringify({ query, variables }),
-  });
-  if (response.status === 402) {
-    toast.error("Shopify: Payment required");
-    return;
-  }
+  const response = await fetch(SHOPIFY_STOREFRONT_URL, { method: "POST", headers: { "Content-Type": "application/json", "X-Shopify-Storefront-Access-Token": SHOPIFY_STOREFRONT_TOKEN }, body: JSON.stringify({ query, variables }) });
+  if (response.status === 402) { toast.error("Shopify: Payment required"); return; }
   if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   const data = await response.json();
-  if (data.errors)
-    throw new Error(
-      `Error calling Shopify: ${data.errors.map((e: { message: string }) => e.message).join(", ")}`,
-    );
+  if (data.errors) throw new Error(`Error calling Shopify: ${data.errors.map((e: { message: string }) => e.message).join(", ")}`);
   return data;
 }
 export async function fetchProducts(first = 50): Promise<ShopifyProduct[]> {
@@ -78,7 +50,6 @@ export async function fetchProductByHandle(handle: string): Promise<ShopifyProdu
 }
 export function formatMoney(amount: string | number, currencyCode: string) {
   const value = typeof amount === "string" ? parseFloat(amount) : amount;
-  const decimals =
-    currencyCode === "BHD" || currencyCode === "KWD" || currencyCode === "OMR" ? 3 : 2;
+  const decimals = currencyCode === "BHD" || currencyCode === "KWD" || currencyCode === "OMR" ? 3 : 2;
   return `${value.toFixed(decimals)} ${currencyCode}`;
 }

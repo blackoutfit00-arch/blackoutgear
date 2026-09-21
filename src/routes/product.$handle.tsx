@@ -15,14 +15,12 @@ export const Route = createFileRoute("/product/$handle")({
   },
   head: ({ loaderData }) => {
     const title = loaderData?.product?.node.title ?? "Product";
-    const description =
-      (loaderData?.product?.node.description ?? "").slice(0, 150) ||
-      "Sunglasses and eyewear delivered in Bahrain.";
+    const description = (loaderData?.product?.node.description ?? "").slice(0, 150) || "Gym apparel and lifting gear delivered in Bahrain.";
     return {
       meta: [
-        { title: `${title} — Vue` },
+        { title: `${title} — Blackout Gear` },
         { name: "description", content: description },
-        { property: "og:title", content: `${title} — Vue` },
+        { property: "og:title", content: `${title} — Blackout Gear` },
         { property: "og:description", content: description },
         { property: "og:type", content: "product" },
         { name: "twitter:card", content: "summary_large_image" },
@@ -115,10 +113,7 @@ function ProductPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="mx-auto max-w-5xl px-4 py-10">
-        <Link
-          to="/"
-          className="label-caps mb-6 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-        >
+        <Link to="/" className="label-caps mb-6 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
           <ChevronLeft className="h-4 w-4" /> Back to shop
         </Link>
 
@@ -167,13 +162,9 @@ function ProductPage() {
                           const isAvailable = variants.some(
                             (v) =>
                               v.availableForSale &&
-                              v.selectedOptions.some(
-                                (opt) => opt.name === option.name && opt.value === value,
-                              ) &&
+                              v.selectedOptions.some((opt) => opt.name === option.name && opt.value === value) &&
                               v.selectedOptions.every((opt) =>
-                                opt.name === option.name
-                                  ? true
-                                  : selections[opt.name] === opt.value,
+                                opt.name === option.name ? true : selections[opt.name] === opt.value,
                               ),
                           );
                           return (
@@ -204,13 +195,7 @@ function ProductPage() {
               className="label-caps mt-8 w-full !border-0 !bg-green-600 !text-white hover:!bg-green-700 disabled:!bg-green-600 disabled:!text-white disabled:opacity-60"
               size="lg"
             >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : variant?.availableForSale ? (
-                "Add to cart"
-              ) : (
-                "Sold out"
-              )}
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : variant?.availableForSale ? "Add to cart" : "Sold out"}
             </Button>
 
             {node.descriptionHtml && (

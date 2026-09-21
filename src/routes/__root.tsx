@@ -79,10 +79,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Vue" },
-      { name: "description", content: "Sunglasses & eyewear delivered in Bahrain." },
-      { property: "og:title", content: "Vue" },
-      { property: "og:description", content: "Sunglasses & eyewear delivered in Bahrain." },
+      { title: "Blackout Gear" },
+      { name: "description", content: "Gym apparel & lifting gear delivered in Bahrain." },
+      { property: "og:title", content: "Blackout Gear" },
+      { property: "og:description", content: "Gym apparel & lifting gear delivered in Bahrain." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -95,7 +95,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Caveat:wght@500;600&family=Playfair+Display:wght@600;700;800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&display=swap",
       },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
     ],
