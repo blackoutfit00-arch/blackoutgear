@@ -19,8 +19,8 @@ export function SearchButton() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="icon" className="h-11 w-11" aria-label="Search products">
-          <Search className="h-5 w-5" />
+        <Button variant="ghost" size="icon" className="h-11 w-11 text-header-foreground hover:bg-header-foreground/10 hover:text-header-foreground" aria-label="Search products">
+          <Search className="h-6 w-6" strokeWidth={1.25} />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-72 p-3">

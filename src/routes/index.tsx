@@ -6,7 +6,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ProductCard } from "@/components/ProductCard";
 import { fetchProducts, type ShopifyProduct } from "@/lib/shopify";
-import { STORE_NAME, STORE_TAGLINE } from "@/config/store";
+import { STORE_NAME } from "@/config/store";
 import { CATEGORIES } from "@/config/categories";
 
 type IndexSearch = { q?: string | undefined };
@@ -55,18 +55,13 @@ function Index() {
       <SiteHeader />
 
       <section
-        className="relative border-b border-border bg-cover bg-center"
+        className="relative h-[42vh] min-h-72 border-b border-border bg-cover bg-center sm:h-[55vh]"
         style={{ backgroundImage: "url(/hero-gym.jpg)" }}
       >
-        <div className="absolute inset-0 bg-black/55" />
-        <div className="relative mx-auto max-w-6xl px-4 py-20 text-center sm:py-28">
-          <p className="label-caps text-xs text-primary drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">Bahrain</p>
-          <h1 className="mt-3 text-5xl text-white drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] sm:text-6xl">{STORE_NAME}</h1>
-          <p className="mx-auto mt-4 max-w-xl text-sm text-neutral-100 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] sm:text-base">{STORE_TAGLINE}</p>
-        </div>
+        <h1 className="sr-only">{STORE_NAME}</h1>
       </section>
 
-      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+      <main className="mx-auto max-w-7xl px-6 py-12 sm:px-8 sm:py-16">
         {q && q.trim() ? (
           <>
             <p className="mb-5 text-sm text-muted-foreground">
@@ -95,7 +90,7 @@ function Index() {
         ) : isError ? (
           <p className="py-20 text-center text-muted-foreground">Couldn't load products. Please try again.</p>
         ) : (
-          <div className="space-y-12">
+          <div className="space-y-16">
             {HOME_SHELVES.map((label) => {
               const category = CATEGORIES.find((c) => c.label === label);
               if (!category) return null;
@@ -103,31 +98,34 @@ function Index() {
               if (shelfProducts.length === 0) return null;
               return (
                 <section key={label} aria-labelledby={`shelf-${label}`}>
-                  <div className="mb-5 flex items-center justify-between">
+                  <div className="mb-9 flex items-center justify-between">
                     <Link
                       id={`shelf-${label}`}
                       to="/category/$slug"
                       params={{ slug: category.slug }}
-                      className="group flex items-center gap-2 text-2xl font-medium text-foreground sm:text-3xl"
+                      className="group flex items-center gap-2 text-[13px] font-medium uppercase text-foreground"
                     >
                       {label}
-                      <ChevronRight className="h-6 w-6 transition-transform group-hover:translate-x-1" />
-                    </Link>
-                    <Link
-                      to="/category/$slug"
-                      params={{ slug: category.slug }}
-                      className="text-sm font-medium text-muted-foreground hover:text-foreground"
-                    >
-                      View all
+                      <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </div>
-                  <div className="-mx-1 flex gap-5 overflow-x-auto px-1 pb-3 snap-x snap-mandatory scrollbar-none">
+                  <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none">
                     {shelfProducts.slice(0, 5).map((product) => (
                       <div key={product.node.id} className="snap-start">
                         <ProductCard product={product} compact />
                       </div>
                     ))}
                   </div>
+                  <div className="mt-8 h-px bg-border" aria-hidden="true">
+                    <div className="h-px w-1/2 bg-foreground" />
+                  </div>
+                  <Link
+                    to="/category/$slug"
+                    params={{ slug: category.slug }}
+                    className="label-caps mt-8 flex h-14 w-full items-center justify-center bg-primary px-6 text-[11px] font-bold text-primary-foreground transition-colors hover:bg-primary/85"
+                  >
+                    View all
+                  </Link>
                 </section>
               );
             })}

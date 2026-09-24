@@ -33,10 +33,10 @@ export function CartDrawer() {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="relative h-11 w-11">
-          <ShoppingBag className="h-6 w-6" />
+        <Button variant="ghost" size="icon" className="relative h-11 w-11 text-header-foreground hover:bg-header-foreground/10 hover:text-header-foreground" aria-label="Shopping bag">
+          <ShoppingBag className="h-6 w-6" strokeWidth={1.25} />
           {totalItems > 0 && (
-            <Badge className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs">
+            <Badge className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full border border-header bg-header-foreground p-0 text-[10px] text-header">
               {totalItems}
             </Badge>
           )}
