@@ -11,20 +11,15 @@ const CUSTOMER_CARE_LINKS = [
 
 export function SiteFooter() {
   return (
-    <footer className="relative overflow-hidden border-t border-border bg-card">
-      <div className="relative mx-auto max-w-6xl px-4 py-12">
-        <div className="flex items-center gap-3">
-          <img src="/bg-logo.png" alt={STORE_NAME} className="h-7 w-auto object-contain" />
-          <p className="label-caps text-xs text-muted-foreground">Sports Online Store · Bahrain</p>
-        </div>
-
-        <div className="mt-8 grid grid-cols-1 gap-10 sm:grid-cols-2">
+    <footer className="border-t border-border bg-card">
+      <div className="mx-auto max-w-7xl px-8 py-14 sm:px-10 sm:py-16">
+        <div className="grid grid-cols-1 gap-12 sm:grid-cols-2">
           <div>
-            <p className="label-caps text-xs text-muted-foreground">Customer Care</p>
-            <ul className="mt-3 space-y-2">
+            <p className="label-caps text-[10px] font-bold text-foreground">Customer Care</p>
+            <ul className="mt-7 space-y-5">
               {CUSTOMER_CARE_LINKS.map((item) => (
                 <li key={item.label}>
-                  <Link to={item.to} className="text-sm text-foreground/90 hover:text-primary">
+                  <Link to={item.to} className="text-[13px] text-muted-foreground transition-colors hover:text-foreground">
                     {item.label}
                   </Link>
                 </li>
@@ -33,16 +28,16 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <p className="label-caps text-xs text-muted-foreground">Connect</p>
-            <ul className="mt-3 space-y-2">
+            <p className="label-caps text-[10px] font-bold text-foreground">Connect</p>
+            <ul className="mt-7 space-y-5">
               <li>
                 <a
                   href={`https://wa.me/${WHATSAPP_NUMBER}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-sm text-foreground/90 hover:text-primary"
+                  className="text-[13px] text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  WhatsApp · 35329797
+                  WhatsApp · +973 3532 9797
                 </a>
               </li>
               <li>
@@ -50,7 +45,7 @@ export function SiteFooter() {
                   href={`https://instagram.com/${INSTAGRAM_HANDLE}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-sm text-foreground/90 hover:text-primary"
+                  className="text-[13px] text-muted-foreground transition-colors hover:text-foreground"
                 >
                   Instagram · @{INSTAGRAM_HANDLE}
                 </a>
@@ -59,9 +54,12 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <p className="mt-10 border-t border-border pt-6 text-xs italic text-muted-foreground">
-          {STORE_NAME.toUpperCase()} is an independent retailer. All trademarks belong to their respective owners.
-        </p>
+        <div className="mt-12 border-t border-border pt-9">
+          <p className="max-w-xl text-[11px] italic leading-relaxed text-muted-foreground">
+            {STORE_NAME.toUpperCase()} is an independent retailer. All trademarks belong to their respective owners.
+          </p>
+          <p className="mt-5 text-[9px] uppercase text-muted-foreground">© 2026 {STORE_NAME}. All rights reserved.</p>
+        </div>
       </div>
     </footer>
   );

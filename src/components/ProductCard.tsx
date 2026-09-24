@@ -31,24 +31,24 @@ export function ProductCard({ product, compact = false }: { product: ShopifyProd
 
   if (compact) {
     return (
-      <article className="group w-[190px] shrink-0 sm:w-[210px] lg:w-[220px]">
-        <Link to="/product/$handle" params={{ handle: node.handle }} className="block overflow-hidden rounded-2xl bg-muted aspect-square">
+      <article className="group w-[calc((100vw-3.5rem)/2)] shrink-0 sm:w-[260px] lg:w-[300px]">
+        <Link to="/product/$handle" params={{ handle: node.handle }} className="block aspect-[3/4] overflow-hidden rounded-sm bg-muted">
           {image ? (
             <img src={image.url} alt={image.altText ?? node.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">No image</div>
           )}
         </Link>
-        <Link to="/product/$handle" params={{ handle: node.handle }} className="block px-1 pt-3">
-          <h3 className="truncate text-sm font-medium text-foreground">{node.title}</h3>
-          <p className="mt-1 text-sm font-semibold text-foreground">{formatMoney(price.amount, price.currencyCode)}</p>
+        <Link to="/product/$handle" params={{ handle: node.handle }} className="block pt-4">
+          <h3 className="truncate text-[11px] font-semibold uppercase text-foreground sm:text-xs">{node.title}</h3>
+          <p className="mt-1.5 text-[13px] font-light text-foreground sm:text-sm">{formatMoney(price.amount, price.currencyCode)}</p>
         </Link>
       </article>
     );
   }
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-md border border-border bg-card transition-colors hover:border-primary/60">
+    <article className="group flex flex-col overflow-hidden rounded-sm border border-border bg-card transition-colors hover:border-foreground/60">
       <Link to="/product/$handle" params={{ handle: node.handle }} className="block aspect-square overflow-hidden bg-muted">
         {image ? (
           <img src={image.url} alt={image.altText ?? node.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -62,11 +62,11 @@ export function ProductCard({ product, compact = false }: { product: ShopifyProd
           <p className="mt-1 text-base font-semibold text-foreground">{formatMoney(price.amount, price.currencyCode)}</p>
         </Link>
         {hasOptions ? (
-          <Button asChild className="label-caps border-0 bg-white text-black transition-colors hover:bg-neutral-200">
+          <Button asChild className="label-caps border-0 bg-primary text-primary-foreground transition-colors hover:bg-primary/85">
             <Link to="/product/$handle" params={{ handle: node.handle }}>View product</Link>
           </Button>
         ) : (
-          <Button onClick={handleAdd} disabled={isLoading || !firstAvailable?.availableForSale} className="label-caps border-0 bg-green-600 text-white transition-colors hover:bg-green-700 disabled:bg-green-600 disabled:text-white disabled:opacity-60">
+          <Button onClick={handleAdd} disabled={isLoading || !firstAvailable?.availableForSale} className="label-caps border-0 bg-primary text-primary-foreground transition-colors hover:bg-primary/85 disabled:opacity-60">
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : firstAvailable?.availableForSale ? "Add to cart" : "Sold out"}
           </Button>
         )}

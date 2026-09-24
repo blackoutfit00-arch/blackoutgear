@@ -17,8 +17,8 @@ export function SiteMenu() {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" aria-label="Menu">
-          <Menu className="h-5 w-5" />
+        <Button variant="ghost" size="icon" className="text-header-foreground hover:bg-header-foreground/10 hover:text-header-foreground" aria-label="Menu">
+          <Menu className="h-7 w-7" strokeWidth={1.25} />
         </Button>
       </SheetTrigger>
 
@@ -43,7 +43,10 @@ export function SiteMenu() {
             Home
           </button>
           <button
-            onClick={() => goToCategory(CATEGORIES.find((c) => c.slug === "all")!)}
+            onClick={() => {
+              const allCategory = CATEGORIES.find((c) => c.slug === "all");
+              if (allCategory) goToCategory(allCategory);
+            }}
             className="block w-full py-4 text-left text-2xl font-normal text-foreground transition-colors hover:text-primary sm:text-3xl"
           >
             All Products
