@@ -43,11 +43,11 @@ export function CartDrawer() {
         <Button
           variant="ghost"
           size="icon"
-          className="relative h-10 w-10 rounded-none border-0 bg-transparent p-0 text-[#f4eee3] shadow-none hover:bg-transparent hover:text-[#f4eee3] hover:opacity-60 sm:h-11 sm:w-11"
+          className="relative h-10 w-10 rounded-none border-0 bg-transparent p-0 text-[#ffffff] shadow-none hover:bg-transparent hover:text-[#ffffff] hover:opacity-60 sm:h-11 sm:w-11"
         >
           <ShoppingBag className="!h-8 !w-8 sm:!h-9 sm:!w-9" strokeWidth={1.35} />
           {totalItems > 0 && (
-            <Badge className="absolute -top-1 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#4d9d62] p-0 text-xs text-white">
+            <Badge className="absolute -top-1 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-white p-0 text-xs text-black">
               {totalItems}
             </Badge>
           )}
@@ -101,7 +101,7 @@ export function CartDrawer() {
                       style={{
                         width: `${progressPct}%`,
                         backgroundImage:
-                          "repeating-linear-gradient(45deg, hsl(var(--accent)) 0px, hsl(var(--accent)) 7px, hsl(var(--accent) / 0.55) 7px, hsl(var(--accent) / 0.55) 14px)",
+                          "repeating-linear-gradient(45deg, var(--accent) 0px, var(--accent) 7px, color-mix(in oklab, var(--accent) 55%, transparent) 7px, color-mix(in oklab, var(--accent) 55%, transparent) 14px)",
                       }}
                     />
                   </div>

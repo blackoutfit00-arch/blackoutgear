@@ -201,7 +201,7 @@ function ProductPage() {
             <Button
               onClick={handleAdd}
               disabled={isLoading || !variant?.availableForSale}
-              className="label-caps mt-8 w-full !border-0 !bg-green-600 !text-white hover:!bg-green-700 disabled:!bg-green-600 disabled:!text-white disabled:opacity-60"
+              className="label-caps mt-8 w-full !border-0 !bg-white !text-black hover:!bg-neutral-200 disabled:!bg-white disabled:!text-black disabled:opacity-60"
               size="lg"
             >
               {isLoading ? (

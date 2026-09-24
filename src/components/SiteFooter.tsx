@@ -14,7 +14,9 @@ export function SiteFooter() {
     <footer className="relative overflow-hidden border-t border-border bg-card">
       <div className="relative mx-auto max-w-6xl px-4 py-12">
         <div className="flex items-center gap-4">
-          <span className="font-display text-4xl leading-none tracking-[0.08em] text-[#f4eee3]">VUE</span>
+          <span className="font-display text-4xl leading-none tracking-[0.08em] text-[#ffffff]">
+            VUE
+          </span>
           <p className="label-caps text-xs text-muted-foreground">Eyewear & Sunglasses · Bahrain</p>
         </div>
 
