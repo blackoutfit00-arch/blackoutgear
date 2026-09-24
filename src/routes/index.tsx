@@ -1,18 +1,20 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
-import { Loader2, ChevronRight } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ProductCard } from "@/components/ProductCard";
 import { fetchProducts, type ShopifyProduct } from "@/lib/shopify";
-import { STORE_NAME } from "@/config/store";
+import { STORE_NAME, STORE_TAGLINE } from "@/config/store";
 import { CATEGORIES } from "@/config/categories";
+import { cn } from "@/lib/utils";
 
-type IndexSearch = { q?: string | undefined };
+type IndexSearch = { category?: string | undefined; q?: string | undefined };
 
 export const Route = createFileRoute("/")({
   validateSearch: (search: Record<string, unknown>): IndexSearch => ({
+    category: typeof search["category"] === "string" ? (search["category"] as string) : undefined,
     q: typeof search["q"] === "string" ? (search["q"] as string) : undefined,
   }),
   head: () => ({
@@ -35,103 +37,99 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const HOME_SHELVES = ["T-Shirt", "Compression", "Pants", "Accessories"];
-
 function Index() {
-  const { q } = Route.useSearch();
+  const { category, q } = Route.useSearch();
   const { data: products, isLoading, isError } = useQuery({
     queryKey: ["products"],
     queryFn: () => fetchProducts(50),
   });
+  const [active, setActive] = useState(category && CATEGORIES.some((c) => c.label === category) ? category : "All");
 
-  const searchResults = useMemo(() => {
-    if (!products || !q || !q.trim()) return [];
-    const needle = q.trim().toLowerCase();
-    return products.filter((p: ShopifyProduct) => p.node.title.toLowerCase().includes(needle));
-  }, [products, q]);
+  useEffect(() => {
+    if (category && CATEGORIES.some((c) => c.label === category)) {
+      setActive(category);
+    }
+  }, [category]);
+
+  const available = useMemo(() => {
+    if (!products) return CATEGORIES.slice(0, 1);
+    return CATEGORIES.filter(
+      (c) => c.label === "All" || products.some((p: ShopifyProduct) => c.match(p.node)),
+    );
+  }, [products]);
+
+  const filtered = useMemo(() => {
+    if (!products) return [];
+    const cat = CATEGORIES.find((c) => c.label === active);
+    let result = cat ? products.filter((p: ShopifyProduct) => cat.match(p.node)) : products;
+    if (q && q.trim()) {
+      const needle = q.trim().toLowerCase();
+      result = result.filter((p: ShopifyProduct) => p.node.title.toLowerCase().includes(needle));
+    }
+    return result;
+  }, [products, active, q]);
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
 
       <section
-        className="relative h-[42vh] min-h-72 border-b border-border bg-cover bg-center sm:h-[55vh]"
+        className="relative border-b border-border bg-cover bg-center"
         style={{ backgroundImage: "url(/hero-gym.jpg)" }}
       >
-        <h1 className="sr-only">{STORE_NAME}</h1>
+        <div className="absolute inset-0 bg-black/30" />
+        <div className="relative mx-auto max-w-6xl px-4 py-20 text-center sm:py-28">
+          <p className="label-caps text-xs text-primary">Bahrain</p>
+          <h1 className="mt-3 text-5xl text-white sm:text-6xl">{STORE_NAME}</h1>
+          <p className="mx-auto mt-4 max-w-xl text-sm text-neutral-200 sm:text-base">{STORE_TAGLINE}</p>
+        </div>
       </section>
 
-      <main className="mx-auto max-w-7xl px-6 py-12 sm:px-8 sm:py-16">
-        {q && q.trim() ? (
-          <>
-            <p className="mb-5 text-sm text-muted-foreground">
-              Results for <span className="font-semibold text-foreground">"{q.trim()}"</span>
-            </p>
-            {isLoading ? (
-              <div className="flex justify-center py-20">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : isError ? (
-              <p className="py-20 text-center text-muted-foreground">Couldn't load products. Please try again.</p>
-            ) : searchResults.length > 0 ? (
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                {searchResults.map((product) => (
-                  <ProductCard key={product.node.id} product={product} />
-                ))}
-              </div>
-            ) : (
-              <p className="py-20 text-center text-muted-foreground">No products found</p>
-            )}
-          </>
-        ) : isLoading ? (
+      <main className="mx-auto max-w-6xl px-4 py-12">
+        <nav className="-mx-4 mb-8 flex gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {available.map((c) => (
+            <button
+              key={c.label}
+              onClick={() => setActive(c.label)}
+              className={cn(
+                "label-caps shrink-0 rounded-full border px-5 py-2.5 text-sm transition-colors",
+                c.label === "Offers"
+                  ? active === c.label
+                    ? "border-destructive bg-destructive text-destructive-foreground"
+                    : "border-destructive/50 bg-destructive/15 text-destructive hover:bg-destructive/25"
+                  : active === c.label
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-secondary bg-secondary text-secondary-foreground hover:border-primary/60 hover:text-foreground",
+              )}
+            >
+              {c.label}
+            </button>
+          ))}
+        </nav>
+
+        {q && q.trim() && (
+          <p className="mb-4 text-sm text-muted-foreground">
+            Results for <span className="font-semibold text-foreground">"{q.trim()}"</span>
+          </p>
+        )}
+
+        {isLoading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : isError ? (
           <p className="py-20 text-center text-muted-foreground">Couldn't load products. Please try again.</p>
-        ) : (
-          <div className="space-y-16">
-            {HOME_SHELVES.map((label) => {
-              const category = CATEGORIES.find((c) => c.label === label);
-              if (!category) return null;
-              const shelfProducts = products?.filter((p: ShopifyProduct) => category.match(p.node)) ?? [];
-              if (shelfProducts.length === 0) return null;
-              return (
-                <section key={label} aria-labelledby={`shelf-${label}`}>
-                  <div className="mb-9 flex items-center justify-between">
-                    <Link
-                      id={`shelf-${label}`}
-                      to="/category/$slug"
-                      params={{ slug: category.slug }}
-                      className="group flex items-center gap-2 text-[13px] font-medium uppercase text-foreground"
-                    >
-                      {label}
-                      <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </Link>
-                  </div>
-                  <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none">
-                    {shelfProducts.slice(0, 5).map((product) => (
-                      <div key={product.node.id} className="snap-start">
-                        <ProductCard product={product} compact />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-8 h-px bg-border" aria-hidden="true">
-                    <div className="h-px w-1/2 bg-foreground" />
-                  </div>
-                  <Link
-                    to="/category/$slug"
-                    params={{ slug: category.slug }}
-                    className="label-caps mt-8 flex h-14 w-full items-center justify-center bg-primary px-6 text-[11px] font-bold text-primary-foreground transition-colors hover:bg-primary/85"
-                  >
-                    View all
-                  </Link>
-                </section>
-              );
-            })}
+        ) : filtered.length > 0 ? (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {filtered.map((product) => (
+              <ProductCard key={product.node.id} product={product} />
+            ))}
           </div>
+        ) : (
+          <p className="py-20 text-center text-muted-foreground">No products found</p>
         )}
       </main>
+
 
       <SiteFooter />
     </div>

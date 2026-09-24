@@ -1,61 +1,62 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { X, Menu } from "lucide-react";
-import { Sheet, SheetContent, SheetTitle, SheetDescription, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { Menu, Search } from "lucide-react";
+import { Sheet, SheetContent, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { CATEGORIES } from "@/config/categories";
+import { STORE_NAME } from "@/config/store";
 
 export function SiteMenu() {
   const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const navigate = useNavigate();
 
-  const goToCategory = (category: (typeof CATEGORIES)[number]) => {
+  const goToCategory = (label: string) => {
     setIsOpen(false);
-    navigate({ to: "/category/$slug", params: { slug: category.slug } });
+    navigate({ to: "/", search: { category: label, q: undefined } });
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsOpen(false);
+    navigate({ to: "/", search: { q: query.trim() || undefined, category: undefined } });
   };
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="text-header-foreground hover:bg-header-foreground/10 hover:text-header-foreground" aria-label="Menu">
-          <Menu className="h-7 w-7" strokeWidth={1.25} />
+        <Button variant="outline" size="icon" aria-label="Menu">
+          <Menu className="h-5 w-5" />
         </Button>
       </SheetTrigger>
 
-      <SheetContent
-        side="left"
-        className="flex h-full w-1/2 flex-col gap-0 border-none bg-background p-0 pt-6 text-foreground sm:max-w-sm [&>button]:hidden"
-      >
+      <SheetContent side="left" className="flex h-full w-full flex-col gap-0 p-0 sm:max-w-sm">
         <SheetTitle className="sr-only">Menu</SheetTitle>
-        <SheetDescription className="sr-only">Browse categories</SheetDescription>
+        <SheetDescription className="sr-only">Search products and browse categories</SheetDescription>
 
-        <SheetClose asChild>
-          <button aria-label="Close menu" className="mb-4 ml-6 flex h-8 w-8 items-center justify-center text-foreground">
-            <X className="h-7 w-7" strokeWidth={1.75} />
-          </button>
-        </SheetClose>
+        <div className="flex items-center justify-between border-b border-border px-4 py-4">
+          <img src="/bg-logo-header.png" alt={STORE_NAME} className="h-8 w-auto object-contain" />
+        </div>
 
-        <nav className="flex-1 overflow-y-auto px-6">
-          <button
-            onClick={() => { setIsOpen(false); navigate({ to: "/", search: { q: undefined } }); }}
-            className="block w-full py-4 text-left text-2xl font-normal text-foreground transition-colors hover:text-primary sm:text-3xl"
-          >
-            Home
-          </button>
-          <button
-            onClick={() => {
-              const allCategory = CATEGORIES.find((c) => c.slug === "all");
-              if (allCategory) goToCategory(allCategory);
-            }}
-            className="block w-full py-4 text-left text-2xl font-normal text-foreground transition-colors hover:text-primary sm:text-3xl"
-          >
-            All Products
-          </button>
-          {CATEGORIES.filter((c) => c.slug !== "all" && c.slug !== "offers").map((c) => (
+        <form onSubmit={handleSearch} className="border-b border-border p-4">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search products..."
+              className="h-11 rounded-full pl-9"
+            />
+          </div>
+        </form>
+
+        <nav className="flex-1 overflow-y-auto px-2 py-2">
+          {CATEGORIES.map((c) => (
             <button
               key={c.label}
-              onClick={() => goToCategory(c)}
-              className="block w-full py-4 text-left text-2xl font-normal text-foreground transition-colors hover:text-primary sm:text-3xl"
+              onClick={() => goToCategory(c.label)}
+              className="label-caps block w-full px-4 py-3.5 text-left text-sm tracking-wide text-foreground transition-colors hover:text-primary"
             >
               {c.label}
             </button>

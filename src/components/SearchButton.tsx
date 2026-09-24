@@ -13,14 +13,14 @@ export function SearchButton() {
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
     setOpen(false);
-    navigate({ to: "/", search: { q: query.trim() || undefined } });
+    navigate({ to: "/", search: { q: query.trim() || undefined, category: undefined } });
   };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-11 w-11 text-header-foreground hover:bg-header-foreground/10 hover:text-header-foreground" aria-label="Search products">
-          <Search className="h-6 w-6" strokeWidth={1.25} />
+        <Button variant="outline" size="icon" className="h-11 w-11" aria-label="Search products">
+          <Search className="h-5 w-5" />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-72 p-3">
