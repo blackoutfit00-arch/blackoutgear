@@ -21,7 +21,8 @@ import { createShopifyDraftOrder } from "@/lib/shopifyAdmin";
 import { saveLastOrder, generateOrderNumber } from "@/lib/lastOrder";
 import { useCartTotals } from "@/lib/cartTotals";
 import { useCartStore } from "@/stores/cartStore";
-import { STORE_NAME, WHATSAPP_NUMBER, STORE_TAGLINE } from "@/config/store";
+import { STORE_NAME, STORE_TAGLINE, BANK_IBAN } from "@/config/store";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -131,6 +132,23 @@ function CheckoutPage() {
         discountPercent,
       },
     }).catch((err) => console.error("Failed to create Shopify draft order:", err));
+
+    // Save to the orders table (never blocks the customer flow).
+    supabase
+      .from("orders")
+      .insert({
+        order_number: orderNumber,
+        customer_name: order.name,
+        phone: order.phone,
+        address: order.address,
+        notes: order.notes || null,
+        items: order.lines,
+        total_quantity: totalItems,
+        total_price: total,
+        currency,
+        payment_reference: BANK_IBAN,
+      })
+      .then(({ error }) => error && console.error("Failed to save order:", error));
 
     clearCart();
     navigate({ to: "/order-confirmed" });
