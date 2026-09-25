@@ -8,7 +8,6 @@ import {
   SheetDescription,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CATEGORIES } from "@/config/categories";
 import { STORE_NAME } from "@/config/store";
@@ -32,9 +31,13 @@ export function SiteMenu() {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" aria-label="Menu">
-          <Menu className="h-5 w-5" />
-        </Button>
+        <button
+          type="button"
+          aria-label="Open menu"
+          className="text-[#f4eee3] transition-opacity hover:opacity-60"
+        >
+          <Menu className="h-7 w-7 sm:h-9 sm:w-9" strokeWidth={1.35} />
+        </button>
       </SheetTrigger>
 
       <SheetContent side="left" className="flex h-full w-full flex-col gap-0 p-0 sm:max-w-sm">
@@ -44,7 +47,9 @@ export function SiteMenu() {
         </SheetDescription>
 
         <div className="flex items-center justify-between border-b border-border px-4 py-4">
-          <img src="/bg-logo-header.png" alt={STORE_NAME} className="h-8 w-auto object-contain" />
+          <span className="font-display text-3xl leading-none tracking-[0.08em] text-foreground">
+            {STORE_NAME}
+          </span>
         </div>
 
         <form onSubmit={handleSearch} className="border-b border-border p-4">
