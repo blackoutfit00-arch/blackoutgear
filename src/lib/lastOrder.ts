@@ -11,6 +11,7 @@ export interface LastOrder {
   name: string;
   phone: string;
   address: string;
+  notes: string;
   currency: string;
   subtotal: number;
   discountPercent: number;
