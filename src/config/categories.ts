@@ -2,7 +2,6 @@ import type { ShopifyProduct } from "@/lib/shopify";
 
 export interface CategoryDef {
   label: string;
-  slug: string;
   match: (product: ShopifyProduct["node"]) => boolean;
 }
 
@@ -13,26 +12,13 @@ function isOnOffer(product: ShopifyProduct["node"]): boolean {
 }
 
 export const CATEGORIES: CategoryDef[] = [
-  { label: "All", slug: "all", match: () => true },
-  { label: "Offers", slug: "offers", match: isOnOffer },
-  {
-    label: "Sunglasses",
-    slug: "sunglasses",
-    match: (p) => /sunglass|shades|polarized/.test(p.title.toLowerCase()),
-  },
-  {
-    label: "Optical Frames",
-    slug: "optical-frames",
-    match: (p) => /optical|eyeglass|frame|prescription/.test(p.title.toLowerCase()),
-  },
-  {
-    label: "Sports Eyewear",
-    slug: "sports-eyewear",
-    match: (p) => /sport|cycling|running|ski\b/.test(p.title.toLowerCase()),
-  },
+  { label: "All", match: () => true },
+  { label: "Offers", match: isOnOffer },
+  { label: "Pants", match: (p) => /pant|sweat|sportssuit|jogger/.test(p.title.toLowerCase()) },
+  { label: "Compression", match: (p) => /compression/.test(p.title.toLowerCase()) },
+  { label: "Oversize", match: (p) => /oversize|oversized/.test(p.title.toLowerCase()) },
   {
     label: "Accessories",
-    slug: "accessories",
-    match: (p) => /case|cloth|chain|strap|cleaner|accessor/.test(p.title.toLowerCase()),
+    match: (p) => /strap|belt|glove|shaker|accessor/.test(p.title.toLowerCase()),
   },
 ];

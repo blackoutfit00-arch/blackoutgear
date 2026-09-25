@@ -17,12 +17,12 @@ export const Route = createFileRoute("/product/$handle")({
     const title = loaderData?.product?.node.title ?? "Product";
     const description =
       (loaderData?.product?.node.description ?? "").slice(0, 150) ||
-      "Sunglasses and eyewear delivered in Bahrain.";
+      "Gym apparel and lifting gear delivered in Bahrain.";
     return {
       meta: [
-        { title: `${title} — Vue` },
+        { title: `${title} — Blackout Gear` },
         { name: "description", content: description },
-        { property: "og:title", content: `${title} — Vue` },
+        { property: "og:title", content: `${title} — Blackout Gear` },
         { property: "og:description", content: description },
         { property: "og:type", content: "product" },
         { name: "twitter:card", content: "summary_large_image" },
@@ -88,6 +88,8 @@ function ProductPage() {
     if (matched) {
       setSelections(next);
 
+      // If this variant has its own image in Shopify (e.g. assigned per color),
+      // jump the gallery to it — same behavior as Shopify's native variant swatches.
       if (matched.image?.url) {
         const matchedIndex = images.findIndex((img) => img.url === matched.image!.url);
         if (matchedIndex !== -1) {
