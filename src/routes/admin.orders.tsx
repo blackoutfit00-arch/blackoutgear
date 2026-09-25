@@ -81,7 +81,7 @@ function AdminOrdersPage() {
 
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("orders").update({ status }).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setOrders((o) => o.map((r) => (r.id === id ? { ...r, status } : r)));
   };
 
