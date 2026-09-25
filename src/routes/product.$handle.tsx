@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
 import { fetchProductByHandle, formatMoney, type ShopifyProduct } from "@/lib/shopify";
-import { STORE_NAME } from "@/config/store";
 import { useCartStore } from "@/stores/cartStore";
 
 export const Route = createFileRoute("/product/$handle")({
@@ -18,12 +17,12 @@ export const Route = createFileRoute("/product/$handle")({
     const title = loaderData?.product?.node.title ?? "Product";
     const description =
       (loaderData?.product?.node.description ?? "").slice(0, 150) ||
-      "Premium eyewear and sunglasses delivered in Bahrain.";
+      "Gym apparel and lifting gear delivered in Bahrain.";
     return {
       meta: [
-        { title: `${title} — ${STORE_NAME}` },
+        { title: `${title} — Blackout Gear` },
         { name: "description", content: description },
-        { property: "og:title", content: `${title} — ${STORE_NAME}` },
+        { property: "og:title", content: `${title} — Blackout Gear` },
         { property: "og:description", content: description },
         { property: "og:type", content: "product" },
         { name: "twitter:card", content: "summary_large_image" },
@@ -80,6 +79,10 @@ function ProductPage() {
       variants[0]
     );
   }, [variants, selections]);
+
+  const compareAt = node.compareAtPriceRange?.minVariantPrice;
+  const showCompareAt =
+    !!variant && !!compareAt && parseFloat(compareAt.amount) > parseFloat(variant.price.amount);
 
   const handleSelect = (optionName: string, value: string) => {
     const next = { ...selections, [optionName]: value };
@@ -152,24 +155,14 @@ function ProductPage() {
           </div>
 
           <div>
-            <h1 className="font-display text-4xl italic">{node.title}</h1>
+            <h1 className="text-4xl">{node.title}</h1>
             <p className="mt-2 text-2xl text-primary">
-              {(() => {
-                const current = variant?.price ?? node.priceRange.minVariantPrice;
-                const compare = node.compareAtPriceRange?.minVariantPrice;
-                const showCompare =
-                  compare && parseFloat(compare.amount) > parseFloat(current.amount);
-                return (
-                  <>
-                    {showCompare && (
-                      <span className="mr-2 text-base text-muted-foreground line-through">
-                        {formatMoney(compare.amount, compare.currencyCode)}
-                      </span>
-                    )}
-                    {formatMoney(current.amount, current.currencyCode)}
-                  </>
-                );
-              })()}
+              {showCompareAt && compareAt ? (
+                <span className="mr-2 text-base text-muted-foreground line-through">
+                  {formatMoney(compareAt.amount, compareAt.currencyCode)}
+                </span>
+              ) : null}
+              {variant ? formatMoney(variant.price.amount, variant.price.currencyCode) : null}
             </p>
 
             {options.length > 0 && (
@@ -225,7 +218,7 @@ function ProductPage() {
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : variant?.availableForSale ? (
-                "Add to Bag"
+                "Add to cart"
               ) : (
                 "Sold out"
               )}
